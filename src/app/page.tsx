@@ -1,10 +1,8 @@
 import { HomeCtas } from "@/components/public/home-ctas";
 import { MotorcycleCard } from "@/components/motor/motorcycle-card";
-import { MotorcycleSimulator } from "@/components/simulation/motorcycle-simulator";
-import { BpkbSimulator } from "@/components/simulation/bpkb-simulator";
 import { EmptyState } from "@/components/ui/empty-state";
 import type { Motorcycle } from "@/types/motorcycle";
-import type { BpkbProduct, MotorcycleRate } from "@/types/rate-card";
+import type { MotorcycleRate } from "@/types/rate-card";
 import {
   ShieldCheck,
   Clock,
@@ -162,31 +160,6 @@ const DUMMY_RATES: MotorcycleRate[] = [
     otr_price: 21500000,
     period: "2025-2",
     area: "Jabodetabek",
-    status: "active",
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-];
-
-const DUMMY_BPKB_PRODUCTS: BpkbProduct[] = [
-  {
-    id: "bpkb-001",
-    name: "Dana BPKB Super",
-    vehicle_brands: ["Honda", "Yamaha", "Kawasaki", "Suzuki"],
-    max_vehicle_age: 10,
-    description:
-      "Pembiayaan multiguna dengan jaminan BPKB motor, proses cepat dan bunga kompetitif.",
-    status: "active",
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  {
-    id: "bpkb-002",
-    name: "Dana BPKB Flash",
-    vehicle_brands: ["Honda", "Yamaha"],
-    max_vehicle_age: 7,
-    description:
-      "Pencairan dana kilat maksimal 24 jam dengan persyaratan mudah.",
     status: "active",
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
@@ -412,98 +385,170 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 2. THREE MAIN SERVICE CARDS */}
+      {/* 2. TWO MAIN SERVICE CARDS WITH IMAGE DETAILS */}
       <section className="relative z-20 mx-auto w-full max-w-site px-6 pb-16 lg:px-12 lg:-mt-10">
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-          <div className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-slate-200 bg-white p-8 shadow-sm transition-all hover:border-red-300 hover:shadow-lg">
-            <div className="absolute right-0 top-0 h-32 w-32 rounded-full bg-red-50 blur-2xl transition-all group-hover:bg-red-100"></div>
-            <div>
-              <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-xl border border-red-100 bg-red-50 text-red-600 shadow-sm transition-transform group-hover:scale-105">
-                <Zap className="h-8 w-8" />
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          <div className="group relative flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all hover:border-red-300 hover:shadow-xl">
+            <div className="relative aspect-[16/10] w-full overflow-hidden bg-gradient-to-br from-red-50 via-white to-slate-50">
+              <img
+                src="https://coresg-normal.trae.ai/api/ide/v1/text_to_image?prompt=Honda%20Vario%20160%20PCX%20ADV%20Beat%20row%20of%20new%20motorcycles%20red%20white%20black%20color%20dealership%20showroom%20display%20professional%20automotive%20photography&image_size=landscape_16_9"
+                alt="Katalog Motor Honda Baru"
+                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/20 to-transparent"></div>
+              <div className="absolute left-6 top-6 inline-flex items-center gap-1.5 rounded-full border border-red-200 bg-white/90 px-3 py-1 shadow-sm backdrop-blur">
+                <Zap className="h-3.5 w-3.5 text-red-600" />
+                <span className="text-[11px] font-bold uppercase tracking-wider text-red-600">
+                  Katalog Resmi
+                </span>
               </div>
-              <div className="mb-1 text-xs font-bold uppercase tracking-widest text-red-600">
-                Katalog Resmi
+              <div className="absolute bottom-6 left-6 right-6 text-white">
+                <div className="mb-1 flex items-center gap-2">
+                  {[
+                    "Vario",
+                    "PCX",
+                    "ADV",
+                    "Beat",
+                  ].map((tag) => (
+                    <span
+                      key={tag}
+                      className="rounded-full bg-white/15 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider backdrop-blur-sm"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+                <h2 className="font-display text-4xl font-extrabold uppercase tracking-tight drop-shadow-lg">
+                  MOTOR BARU
+                </h2>
+                <p className="mt-1.5 text-sm text-white/90">
+                  Ready stock 45+ unit Honda terbaru dengan DP spesial
+                </p>
               </div>
-              <h2 className="mb-3 font-display text-3xl font-bold uppercase tracking-tight text-slate-900">
-                MOTOR BARU
-              </h2>
-              <p className="text-base leading-relaxed text-slate-600">
-                Temukan motor Honda terbaru dengan pilihan DP ringan, angsuran
-                fleksibel, dan persetujuan leasing kilat se-Indonesia.
-              </p>
             </div>
-            <div className="pt-8">
+            <div className="flex flex-col gap-5 p-8">
+              <div className="grid grid-cols-3 gap-3 text-center">
+                <div className="rounded-xl border border-red-100 bg-red-50/60 p-3">
+                  <p className="font-display text-lg font-bold text-red-600">
+                    DP 10%
+                  </p>
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+                    Min. DP
+                  </p>
+                </div>
+                <div className="rounded-xl border border-amber-100 bg-amber-50/60 p-3">
+                  <p className="font-display text-lg font-bold text-amber-600">
+                    48 Bln
+                  </p>
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+                    Tenor Max
+                  </p>
+                </div>
+                <div className="rounded-xl border border-emerald-100 bg-emerald-50/60 p-3">
+                  <p className="font-display text-lg font-bold text-emerald-600">
+                    0.85%
+                  </p>
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+                    Bunga Flat
+                  </p>
+                </div>
+              </div>
+              <p className="text-sm leading-relaxed text-slate-600">
+                Temukan motor Honda terbaru dengan pilihan DP ringan,
+                angsuran fleksibel, dan persetujuan leasing kilat
+                se-Indonesia. Promo terbatas untuk bulan ini.
+              </p>
               <Link
-                href="/motor"
-                className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-red-600 transition-colors group-hover:text-red-700"
+                href="/pengajuan"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-red-600 to-red-700 px-6 py-3.5 text-sm font-bold uppercase tracking-wider text-white shadow-md shadow-red-600/20 transition-all hover:shadow-lg hover:shadow-red-600/30"
               >
-                LIHAT MOTOR
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1.5" />
+                Ajukan Kredit Motor
+                <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
           </div>
 
-          <div className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-red-200 bg-white p-8 shadow-sm transition-all hover:border-red-400 hover:shadow-lg">
-            <div className="absolute left-0 right-0 top-0 h-2 bg-gradient-to-r from-red-600 via-amber-400 to-red-500"></div>
-            <div className="absolute -bottom-8 -right-8 h-40 w-40 rounded-full bg-amber-50 blur-3xl transition-all group-hover:bg-amber-100/60"></div>
-            <div>
-              <div className="mb-6 flex items-center justify-between">
-                <div className="flex h-14 w-14 items-center justify-center rounded-xl border border-amber-300/80 bg-red-50 text-red-600 shadow-sm transition-transform group-hover:scale-105">
-                  <Wallet className="h-8 w-8" />
-                </div>
-                <span className="inline-flex items-center gap-1 rounded-full bg-amber-400 px-3 py-1 text-[11px] font-black uppercase tracking-wider text-slate-950 shadow-sm">
-                  <Sparkles className="h-3.5 w-3.5 text-red-700" />
+          <div className="group relative flex flex-col overflow-hidden rounded-2xl border border-red-200 bg-white shadow-sm transition-all hover:border-red-400 hover:shadow-xl">
+            <div className="absolute left-0 right-0 top-0 h-1.5 bg-gradient-to-r from-red-600 via-amber-400 to-red-500"></div>
+            <div className="relative aspect-[16/10] w-full overflow-hidden bg-gradient-to-br from-amber-50 via-orange-50 to-red-50">
+              <img
+                src="https://coresg-normal.trae.ai/api/ide/v1/text_to_image?prompt=Motorcycle%20BPKB%20vehicle%20registration%20document%20and%20cash%20money%20Indonesian%20Rupiah%20banknotes%20contract%20agreement%20handshake%20professional%20business%20finance%20photography&image_size=landscape_16_9"
+                alt="Gadai BPKB Motor Dana Tunai"
+                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/15 to-transparent"></div>
+              <div className="absolute left-6 top-6 inline-flex items-center gap-1.5 rounded-full bg-amber-400 px-3 py-1 shadow-sm">
+                <Sparkles className="h-3.5 w-3.5 text-red-700" />
+                <span className="text-[11px] font-black uppercase tracking-wider text-slate-950">
                   Paling Populer
                 </span>
               </div>
-              <div className="mb-1 flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-red-600">
-                <span className="h-2 w-2 rounded-full bg-amber-400"></span>
-                Cair Cepat 1 Hari
+              <div className="absolute right-6 top-6 inline-flex items-center gap-1 rounded-full bg-white/90 px-2.5 py-1 shadow-sm backdrop-blur">
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
+                </span>
+                <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-700">
+                  Cair 24 Jam
+                </span>
               </div>
-              <h2 className="mb-3 font-display text-3xl font-bold uppercase tracking-tight text-slate-900">
-                GADAI BPKB MULTIGUNA
-              </h2>
-              <p className="text-base leading-relaxed text-slate-600">
-                Ajukan dana tunai dengan jaminan BPKB motor Honda, Yamaha,
-                atau Kawasaki. Tanpa birokrasi berbelit, motor tetap Anda
-                gunakan.
-              </p>
+              <div className="absolute bottom-6 left-6 right-6 text-white">
+                <div className="mb-1 flex items-center gap-2">
+                  {["Honda", "Yamaha", "Kawasaki", "Suzuki"].map((tag) => (
+                    <span
+                      key={tag}
+                      className="rounded-full bg-white/15 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider backdrop-blur-sm"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+                <h2 className="font-display text-4xl font-extrabold uppercase tracking-tight drop-shadow-lg">
+                  GADAI BPKB
+                </h2>
+                <p className="mt-1.5 text-sm text-white/90">
+                  Dana tunai sampai 85% nilai kendaraan, motor tetap dipakai
+                </p>
+              </div>
             </div>
-            <div className="pt-8">
+            <div className="flex flex-col gap-5 p-8">
+              <div className="grid grid-cols-3 gap-3 text-center">
+                <div className="rounded-xl border border-red-100 bg-red-50/60 p-3">
+                  <p className="font-display text-lg font-bold text-red-600">
+                    85%
+                  </p>
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+                    Plafon Max
+                  </p>
+                </div>
+                <div className="rounded-xl border border-amber-100 bg-amber-50/60 p-3">
+                  <p className="font-display text-lg font-bold text-amber-600">
+                    36 Bln
+                  </p>
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+                    Tenor Cicilan
+                  </p>
+                </div>
+                <div className="rounded-xl border border-emerald-100 bg-emerald-50/60 p-3">
+                  <p className="font-display text-lg font-bold text-emerald-600">
+                    1 Hari
+                  </p>
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+                    Proses Cair
+                  </p>
+                </div>
+              </div>
+              <p className="text-sm leading-relaxed text-slate-600">
+                Ajukan dana tunai multiguna dengan jaminan BPKB motor Honda,
+                Yamaha, Kawasaki, atau Suzuki. Tanpa birokrasi berbelit,
+                motor tetap Anda gunakan sehari-hari.
+              </p>
               <Link
                 href="/bpkb"
-                className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-red-600 transition-colors group-hover:text-red-700"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-amber-400 to-amber-500 px-6 py-3.5 text-sm font-black uppercase tracking-wider text-slate-950 shadow-md transition-all hover:shadow-lg"
               >
-                AJUKAN SEKARANG
-                <ArrowRight className="h-4 w-4 text-amber-500 transition-transform group-hover:translate-x-1.5" />
-              </Link>
-            </div>
-          </div>
-
-          <div className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-slate-200 bg-white p-8 shadow-sm transition-all hover:border-red-300 hover:shadow-lg">
-            <div className="absolute right-0 top-0 h-32 w-32 rounded-full bg-slate-50 blur-2xl transition-all group-hover:bg-red-50"></div>
-            <div>
-              <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 text-red-600 shadow-sm transition-transform group-hover:scale-105">
-                <Percent className="h-8 w-8" />
-              </div>
-              <div className="mb-1 text-xs font-bold uppercase tracking-widest text-red-600">
-                Kalkulator Akurat
-              </div>
-              <h2 className="mb-3 font-display text-3xl font-bold uppercase tracking-tight text-slate-900">
-                SIMULASI ANGSURAN
-              </h2>
-              <p className="text-base leading-relaxed text-slate-600">
-                Cek pilihan DP, tenor hingga 36 bulan, plafon pencairan, dan
-                estimasi angsuran bulanan secara transparan sebelum mengajukan.
-              </p>
-            </div>
-            <div className="pt-8">
-              <Link
-                href="/simulasi"
-                className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-red-600 transition-colors group-hover:text-red-700"
-              >
-                COBA SIMULASI
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1.5" />
+                Ajukan Dana BPKB
+                <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
           </div>
@@ -598,52 +643,135 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 5. BPKB SIMULATOR & SIMULATION SECTION */}
-      <section className="mx-auto max-w-site px-6 py-20 lg:px-12">
-        <div className="mb-12 text-center">
-          <p className="text-sm font-bold uppercase tracking-wider text-red-600">
-            Kalkulator
-          </p>
-          <h2 className="mt-2 font-display text-4xl font-bold text-slate-900 lg:text-5xl">
-            Simulasi Angsuran Live
-          </h2>
-          <p className="mt-4 text-slate-600">
-            Hitung perkiraan cicilan Anda dari rate card terbaru
-          </p>
-        </div>
-        <div className="grid gap-8 lg:grid-cols-2">
-          <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
-            <div className="mb-6 flex items-center gap-3">
-              <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-red-50 text-red-600 shadow-sm">
-                <Zap className="h-6 w-6" />
+      {/* 5. MITRA LEASING RESMI & TERDAFTAR OJK */}
+      <section className="w-full bg-gradient-to-b from-slate-50 to-white py-20">
+        <div className="mx-auto max-w-site px-6 lg:px-12">
+          <div className="mb-12 text-center">
+            <div className="mb-4 inline-flex items-center gap-3 rounded-full border border-sky-200 bg-sky-50 px-5 py-2.5 shadow-sm">
+              <BadgeCheck className="h-6 w-6 text-sky-500 drop-shadow-sm" strokeWidth={2.5} />
+              <span className="text-sm font-bold uppercase tracking-wider text-sky-700">
+                Terdaftar &amp; Diawasi OJK
               </span>
-              <div>
-                <h3 className="font-display text-2xl font-bold text-slate-900">
-                  Kredit Motor Baru
-                </h3>
-                <p className="text-sm text-slate-500">
-                  Simulasi cicilan per bulan
-                </p>
-              </div>
+              <BadgeCheck className="h-6 w-6 text-sky-500 drop-shadow-sm" strokeWidth={2.5} />
             </div>
-            <MotorcycleSimulator motorcycles={DUMMY_MOTORCYCLES} />
+            <div className="mb-2 inline-flex items-center gap-2">
+              <span className="h-2 w-7 rounded-full bg-red-600"></span>
+              <span className="h-2 w-3 rounded-full bg-amber-400"></span>
+              <span className="h-2 w-2 rounded-full bg-emerald-500"></span>
+            </div>
+            <h2 className="mt-3 font-display text-4xl font-extrabold uppercase tracking-tight text-slate-900 lg:text-5xl">
+              Mitra Leasing Resmi &amp; Terpercaya
+            </h2>
+            <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-slate-600">
+              Bekerja sama dengan jaringan perusahaan pembiayaan terbesar di
+              Indonesia yang telah terdaftar dan diawasi langsung oleh OJK,
+              memberikan kepastian hukum dan keamanan transaksi Anda.
+            </p>
           </div>
 
-          <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
-            <div className="mb-6 flex items-center gap-3">
-              <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-50 text-red-600 shadow-sm">
-                <Wallet className="h-6 w-6" />
-              </span>
-              <div>
-                <h3 className="font-display text-2xl font-bold text-slate-900">
-                  Dana BPKB Motor
-                </h3>
-                <p className="text-sm text-slate-500">
-                  Simulasi angsuran gadai BPKB
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+            {[
+              {
+                name: "Honda Finance",
+                initial: "HF",
+                desc: "Official Honda",
+              },
+              {
+                name: "FIFGROUP",
+                initial: "FIF",
+                desc: "Astra Group",
+              },
+              {
+                name: "ADIRA",
+                initial: "ADR",
+                desc: "MNC Leasing",
+              },
+              {
+                name: "BFI Finance",
+                initial: "BFI",
+                desc: "Multi Finance",
+              },
+              {
+                name: "WOM Finance",
+                initial: "WOM",
+                desc: "Since 1982",
+              },
+              {
+                name: "SOFICO",
+                initial: "SFC",
+                desc: "OJK Registered",
+              },
+            ].map((mitra) => (
+              <div
+                key={mitra.name}
+                className="group relative flex flex-col items-center justify-center rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm transition-all hover:-translate-y-1 hover:border-red-200 hover:shadow-lg"
+              >
+                <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-red-50 to-amber-50 font-display text-lg font-extrabold text-red-700 ring-2 ring-red-100 transition-transform group-hover:scale-110">
+                  {mitra.initial}
+                </div>
+                <p className="text-sm font-extrabold uppercase tracking-tight text-slate-900">
+                  {mitra.name}
+                </p>
+                <p className="mt-1 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                  {mitra.desc}
+                </p>
+                <div className="mt-3 inline-flex items-center gap-1">
+                  <BadgeCheck
+                    className="h-3.5 w-3.5 text-sky-500"
+                    strokeWidth={2.5}
+                  />
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-sky-600">
+                    OJK
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-12 grid gap-6 rounded-3xl border border-slate-200 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-8 text-white shadow-xl lg:grid-cols-4 lg:p-10">
+            <div className="lg:col-span-1 flex flex-col justify-center gap-3">
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="h-7 w-7 text-emerald-400" />
+                <p className="text-sm font-bold uppercase tracking-wider text-emerald-400">
+                  Jaminan Keamanan
                 </p>
               </div>
+              <h3 className="font-display text-3xl font-extrabold leading-tight">
+                Aman. Terpercaya.
+                <br />
+                <span className="text-amber-400">Pasti Cair.</span>
+              </h3>
             </div>
-            <BpkbSimulator />
+            {[
+              {
+                icon: ShieldCheck,
+                title: "Terdaftar OJK",
+                desc: "Legal & berizin resmi",
+              },
+              {
+                icon: Award,
+                title: "Perlindungan Data",
+                desc: "Privasi terjamin aman",
+              },
+              {
+                icon: CheckCircle2,
+                title: "Kontrak Jelas",
+                desc: "Transparan tanpa biaya tersembunyi",
+              },
+            ].map(({ icon: Icon, title, desc }) => (
+              <div
+                key={title}
+                className="flex items-start gap-4 rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur-sm transition-all hover:bg-white/10"
+              >
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500/20 to-emerald-400/10 text-emerald-400 ring-1 ring-emerald-400/20">
+                  <Icon className="h-5 w-5" />
+                </div>
+                <div>
+                  <p className="text-base font-bold text-white">{title}</p>
+                  <p className="mt-1 text-sm text-slate-300">{desc}</p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>

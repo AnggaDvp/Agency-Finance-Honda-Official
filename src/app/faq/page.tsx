@@ -17,11 +17,12 @@ import {
   ArrowRight,
   MessageCircle,
 } from "lucide-react";
+import type { ComponentType } from "react";
 
 export const metadata = {
   title: "Tentang Kami | NSC Finance - Dealer Resmi Honda",
   description:
-    "Profil NSC Finance, dealer resmi Honda dan penyedia layanan pembiayaan motor terpercaya dengan jaringan cabang seluruh Indonesia.",
+    "Profil NSC Finance, dealer resmi Honda dan penyedia layanan pembiayaan motor terpercaya dengan jaringan mitra leasing multifinance seluruh Indonesia.",
 };
 
 const NILAI_PERUSAHAAN = [
@@ -72,6 +73,142 @@ const MISI_LIST = [
   "Berkontribusi positif bagi perekonomian dan kesejahteraan masyarakat",
 ];
 
+type PartnerLogoProps = { className?: string };
+
+function AdiraLogo({ className = "" }: PartnerLogoProps) {
+  return (
+    <svg viewBox="0 0 200 60" className={className} xmlns="http://www.w3.org/2000/svg" aria-label="Adira Finance">
+      <text x="0" y="42" fontFamily="Arial Black, sans-serif" fontSize="42" fontWeight="900" fill="#003399">
+        ADIRA
+      </text>
+      <text x="0" y="57" fontFamily="Arial, sans-serif" fontSize="14" fontWeight="800" fill="#E30613" letterSpacing="1">
+        Astra Group
+      </text>
+    </svg>
+  );
+}
+
+function WomLogo({ className = "" }: PartnerLogoProps) {
+  return (
+    <svg viewBox="0 0 200 60" className={className} xmlns="http://www.w3.org/2000/svg" aria-label="WOM Finance">
+      <rect x="0" y="6" width="68" height="48" rx="4" fill="#FFD100" />
+      <text x="6" y="42" fontFamily="Arial Black, sans-serif" fontSize="30" fontWeight="900" fill="#002F6C">
+        WOM
+      </text>
+      <text x="76" y="30" fontFamily="Arial Black, sans-serif" fontSize="20" fontWeight="900" fill="#002F6C">
+        FINANCE
+      </text>
+      <text x="76" y="48" fontFamily="Arial, sans-serif" fontSize="10" fontWeight="700" fill="#00A74C">
+        Maybank Group
+      </text>
+    </svg>
+  );
+}
+
+function BafLogo({ className = "" }: PartnerLogoProps) {
+  return (
+    <svg viewBox="0 0 200 60" className={className} xmlns="http://www.w3.org/2000/svg" aria-label="BAF">
+      <defs>
+        <clipPath id="baf-a-slice">
+          <rect x="88" y="8" width="36" height="44" />
+        </clipPath>
+      </defs>
+      <text x="0" y="46" fontFamily="Arial Black, sans-serif" fontSize="46" fontWeight="900" fill="#002B7F">
+        B
+        <tspan>A</tspan>
+        <tspan>F</tspan>
+      </text>
+      <g clipPath="url(#baf-a-slice)">
+        <polygon points="88,8 124,8 88,52" fill="#F5B800" />
+      </g>
+      <text x="92" y="46" fontFamily="Arial Black, sans-serif" fontSize="46" fontWeight="900" fill="#F5B800" opacity="0">A</text>
+    </svg>
+  );
+}
+
+function BfiLogo({ className = "" }: PartnerLogoProps) {
+  return (
+    <svg viewBox="0 0 200 60" className={className} xmlns="http://www.w3.org/2000/svg" aria-label="BFI Finance">
+      <rect x="30" y="4" width="130" height="40" rx="2" fill="#004A99" />
+      <text x="42" y="35" fontFamily="Georgia, serif" fontSize="30" fontWeight="700" fill="#FFFFFF" letterSpacing="6">
+        BFI
+      </text>
+      <text x="42" y="57" fontFamily="Arial Black, sans-serif" fontSize="14" fontWeight="900" fill="#0A0A0A" letterSpacing="3">
+        FINANCE
+      </text>
+    </svg>
+  );
+}
+
+function MandiriTunasLogo({ className = "" }: PartnerLogoProps) {
+  return (
+    <svg viewBox="0 0 200 60" className={className} xmlns="http://www.w3.org/2000/svg" aria-label="Mandiri Tunas Finance">
+      <path
+        d="M 50 10 Q 58 2 66 10 Q 74 2 82 10 Q 90 2 98 10 L 100 14 L 50 14 Z"
+        fill="#FFB612"
+      />
+      <text x="10" y="40" fontFamily="Arial, sans-serif" fontSize="26" fontWeight="800" fill="#003399">
+        mandiri
+      </text>
+      <text x="10" y="58" fontFamily="Arial, sans-serif" fontSize="18" fontWeight="500" fill="#003399" fontStyle="italic">
+        tunas finance
+      </text>
+    </svg>
+  );
+}
+
+function KreditPlusLogo({ className = "" }: PartnerLogoProps) {
+  return (
+    <svg viewBox="0 0 200 60" className={className} xmlns="http://www.w3.org/2000/svg" aria-label="KreditPlus">
+      <text x="0" y="42" fontFamily="Arial Black, sans-serif" fontSize="36" fontWeight="900" fill="#00A3E0">
+        kredit
+      </text>
+      <text x="108" y="42" fontFamily="Arial Black, sans-serif" fontSize="36" fontWeight="900" fill="#E30613">
+        plus
+      </text>
+      <g fill="#E30613">
+        <circle cx="182" cy="14" r="5" />
+        <circle cx="192" cy="22" r="5" />
+        <circle cx="180" cy="30" r="5" />
+        <circle cx="190" cy="38" r="5" />
+      </g>
+    </svg>
+  );
+}
+
+const PARTNERS: { name: string; tagline: string; Logo: ComponentType<PartnerLogoProps> }[] = [
+  {
+    name: "Adira Finance",
+    tagline: "Astra Group",
+    Logo: AdiraLogo,
+  },
+  {
+    name: "WOM Finance",
+    tagline: "Maybank Group",
+    Logo: WomLogo,
+  },
+  {
+    name: "BAF",
+    tagline: "Busan Auto Finance",
+    Logo: BafLogo,
+  },
+  {
+    name: "BFI Finance",
+    tagline: "Multifinance Terpercaya",
+    Logo: BfiLogo,
+  },
+  {
+    name: "Mandiri Tunas Finance",
+    tagline: "Mandiri Group",
+    Logo: MandiriTunasLogo,
+  },
+  {
+    name: "KreditPlus",
+    tagline: "KB Finansia",
+    Logo: KreditPlusLogo,
+  },
+];
+
 export default function TentangKamiPage() {
   return (
     <div className="animate-fadeIn">
@@ -110,6 +247,10 @@ export default function TentangKamiPage() {
               </span>
               <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs font-bold uppercase tracking-wider backdrop-blur-sm">
                 Proses Cepat 1x24 Jam
+              </span>
+              <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs font-bold uppercase tracking-wider backdrop-blur-sm">
+                <Handshake className="h-3.5 w-3.5 text-amber-300" />
+                6+ Mitra Leasing Resmi
               </span>
             </div>
           </div>
@@ -295,6 +436,99 @@ export default function TentangKamiPage() {
                 </div>
               );
             })}
+          </div>
+        </div>
+      </section>
+
+      {/* MITRA PEMBIAYAAN */}
+      <section className="bg-white py-20">
+        <div className="mx-auto max-w-site px-6 lg:px-12">
+          <div className="mx-auto max-w-3xl text-center">
+            <span className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-white">
+              <Handshake className="h-3.5 w-3.5 text-amber-300" />
+              Partner Terpercaya
+            </span>
+            <h2 className="mt-4 font-display text-3xl font-bold uppercase text-slate-900 lg:text-4xl">
+              Mitra Pembiayaan Resmi
+            </h2>
+            <p className="mt-4 leading-relaxed text-slate-600">
+              NSC Finance bekerjasama dengan{" "}
+              <strong className="text-slate-900">enam perusahaan multifinance leasing terbesar</strong> dan
+              terpercaya di Indonesia untuk memastikan pengajuan Anda mendapatkan persetujuan tercepat
+              dengan skema bunga terbaik dan fleksibel.
+            </p>
+          </div>
+
+          <div className="mt-14 grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
+            {PARTNERS.map((partner) => {
+              const LogoComp = partner.Logo;
+              return (
+                <div
+                  key={partner.name}
+                  className="group relative flex cursor-default flex-col items-center justify-center rounded-2xl border border-slate-200 bg-gradient-to-br from-white via-slate-50 to-white px-4 py-8 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-red-300 hover:shadow-xl hover:shadow-red-100/60"
+                >
+                  <div className="relative mb-5 flex h-16 w-full items-center justify-center transition-all duration-300">
+                    <div className="absolute inset-0 flex h-full w-full items-center justify-center grayscale transition-all duration-300 group-hover:grayscale-0">
+                      <LogoComp className="h-full w-full object-contain" />
+                    </div>
+                  </div>
+                  <div className="w-full border-t border-slate-100 pt-4 text-center">
+                    <p className="font-display text-sm font-bold uppercase tracking-wider text-slate-900">
+                      {partner.name}
+                    </p>
+                    <p className="mt-1 text-[10px] font-semibold uppercase tracking-widest text-slate-400">
+                      {partner.tagline}
+                    </p>
+                  </div>
+                  <div className="absolute inset-x-0 top-0 h-1 scale-x-0 rounded-t-2xl bg-gradient-to-r from-red-600 to-amber-500 transition-transform duration-300 group-hover:scale-x-100" />
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="mt-14 grid gap-6 md:grid-cols-3">
+            <div className="flex items-start gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-6">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-red-600 text-white shadow-md shadow-red-200">
+                <CheckCircle2 className="h-6 w-6" />
+              </div>
+              <div>
+                <h3 className="font-display text-base font-bold uppercase tracking-tight text-slate-900">
+                  Lebih Mudah Disetujui
+                </h3>
+                <p className="mt-2 text-sm leading-relaxed text-slate-600">
+                  Memiliki 6 mitra leasing sekaligus membuat peluang pengajuan Anda disetujui jauh lebih
+                  besar dan cepat.
+                </p>
+              </div>
+            </div>
+            <div className="flex items-start gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-6">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-600 text-white shadow-md shadow-emerald-200">
+                <Award className="h-6 w-6" />
+              </div>
+              <div>
+                <h3 className="font-display text-base font-bold uppercase tracking-tight text-slate-900">
+                  Rate Bunga Kompetitif
+                </h3>
+                <p className="mt-2 text-sm leading-relaxed text-slate-600">
+                  Bandingkan penawaran dari seluruh mitra secara real-time dan pilih angsuran paling ringan
+                  untuk Anda.
+                </p>
+              </div>
+            </div>
+            <div className="flex items-start gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-6">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-white shadow-md shadow-blue-200">
+                <ShieldCheck className="h-6 w-6" />
+              </div>
+              <div>
+                <h3 className="font-display text-base font-bold uppercase tracking-tight text-slate-900">
+                  Terdaftar &amp; Berizin OJK
+                </h3>
+                <p className="mt-2 text-sm leading-relaxed text-slate-600">
+                  Seluruh mitra pembiayaan kami adalah perusahaan multifinance resmi yang terdaftar dan
+                  diawasi oleh OJK.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
