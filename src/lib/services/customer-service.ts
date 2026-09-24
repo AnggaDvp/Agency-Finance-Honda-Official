@@ -27,17 +27,15 @@ export async function findOrCreateCustomerByPhone(
   if (findError) throw findError;
   if (existing) return existing as Profile;
 
-  const { data, error } = await client
-    .from("profiles")
-    .insert({
-      full_name: input.full_name,
-      phone: input.phone,
-      address: input.address,
-      city: input.city ?? "",
-      role: "customer",
-    })
-    .select("*")
-    .single();
+  const customerPayload = {
+    full_name: input.full_name,
+    phone: input.phone,
+    address: input.address,
+    city: input.city ?? "",
+    role: "customer" as const,
+  };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (client.from("profiles") as any).insert(customerPayload).select("*").single();
   if (error) throw error;
   return data as Profile;
 }

@@ -22,7 +22,7 @@ const QUICK = [
 function ruleReply(msg: string): string {
   const m = msg.toLowerCase();
   if (m.includes("bpkb") || m.includes("gadai") || m.includes("dana") || m.includes("cair")) {
-    return "Pilihan tepat kak! Untuk Gadai BPKB Motor: syaratnya KTP, KK, BPKB & STNK asli, motor usia maks. 10 tahun (Honda / Yamaha / Kawasaki). Estimasi dana cair sampai 85% dari nilai taksiran, tenor fleksibel 6-36 bulan, suku bunga mulai 0.85% flat/bulan. Bisa cek Simulator Live di halaman utama ya!";
+    return "Pilihan tepat kak! Untuk Gadai BPKB Motor: syaratnya KTP, KK, BPKB & STNK asli (Honda / Yamaha / Kawasaki). Estimasi dana cair sampai 85% dari nilai taksiran, tenor fleksibel 6-36 bulan, suku bunga mulai 0.85% flat/bulan. Bisa cek Simulator Live di halaman utama ya!";
   }
   if (m.includes("motor") || m.includes("beli") || m.includes("kredit") || m.includes("adv") || m.includes("pcx") || m.includes("vario")) {
     return "Kami menyediakan Kredit Motor Baru Honda tipe ADV 160, PCX 160, Vario 160 dengan promo DP ringan mulai Rp 2,5 Jt & bunga kompetitif. Unit ready stock! Anda berminat tipe mana? Kami bantu simulasi cicilan per bulan.";

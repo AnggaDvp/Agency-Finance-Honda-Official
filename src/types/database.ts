@@ -197,7 +197,14 @@ export type Database = {
           selected_tenor?: number | null;
           estimated_installment?: number | null;
           payment_method?: "cash" | "credit" | null;
-          status?: Database["public"]["Tables"]["applications"]["Row"]["status"];
+          status?:
+            | "submitted"
+            | "verification"
+            | "follow_up"
+            | "survey"
+            | "processing"
+            | "completed"
+            | "cancelled";
           survey_number?: string | null;
           voucher_name?: string | null;
           source?: string;

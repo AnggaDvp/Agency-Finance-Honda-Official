@@ -84,7 +84,8 @@ export async function findAvailableTenors(client: Client, motorcycleId: string, 
   if (dp !== undefined) request = request.eq("dp", dp);
   const { data, error } = await request;
   if (error) throw error;
-  return [...new Set((data ?? []).map((row) => row.tenor))].sort((a, b) => a - b);
+  const rows = (data ?? []) as { tenor: number }[];
+  return [...new Set(rows.map((row) => row.tenor))].sort((a, b) => a - b);
 }
 
 export async function findAvailableDpOptions(client: Client, motorcycleId: string) {
@@ -94,7 +95,8 @@ export async function findAvailableDpOptions(client: Client, motorcycleId: strin
     .eq("motorcycle_id", motorcycleId)
     .eq("status", "active");
   if (error) throw error;
-  return [...new Set((data ?? []).map((row) => Number(row.dp)))].sort((a, b) => a - b);
+  const rows = (data ?? []) as { dp: number }[];
+  return [...new Set(rows.map((row) => Number(row.dp)))].sort((a, b) => a - b);
 }
 
 export async function findAffordableOptions(

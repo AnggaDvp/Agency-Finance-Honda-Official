@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { BpkbApplyDialog } from "@/components/bpkb/bpkb-apply-dialog";
 import { MotorApplyDialog } from "@/components/motor/motor-apply-dialog";
 import type { Motorcycle } from "@/types/motorcycle";
@@ -12,9 +13,9 @@ export function HomeCtas({ motorcycles }: { motorcycles: Motorcycle[] }) {
   return (
     <>
       <div className="flex flex-wrap gap-4 pt-3">
-        <a href="/motor" className="rounded-lg bg-red-600 px-8 py-3.5 text-sm font-bold uppercase tracking-wider text-white shadow-lg hover:bg-red-700">
+        <Link href="/motor" className="rounded-lg bg-red-600 px-8 py-3.5 text-sm font-bold uppercase tracking-wider text-white shadow-lg hover:bg-red-700">
           Lihat Motor Baru
-        </a>
+        </Link>
         <button
           type="button"
           onClick={() => setBpkbOpen(true)}

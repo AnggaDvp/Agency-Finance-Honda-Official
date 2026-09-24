@@ -19,16 +19,14 @@ export async function getOrCreateConversation(
     if (data) return data as Conversation;
   }
 
-  const { data, error } = await client
-    .from("conversations")
-    .insert({
-      customer_id: options.customerId ?? null,
-      guest_name: options.guestName ?? "Pengunjung",
-      status: "open",
-      mode: "bot",
-    })
-    .select("*")
-    .single();
+  const convPayload = {
+    customer_id: options.customerId ?? null,
+    guest_name: options.guestName ?? "Pengunjung",
+    status: "open" as const,
+    mode: "bot" as const,
+  };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (client.from("conversations") as any).insert(convPayload).select("*").single();
   if (error) throw error;
   return data as Conversation;
 }
@@ -53,17 +51,15 @@ export async function insertMessage(
     metadata?: Record<string, unknown>;
   },
 ) {
-  const { data, error } = await client
-    .from("messages")
-    .insert({
-      conversation_id: input.conversationId,
-      sender_type: input.senderType,
-      sender_id: input.senderId ?? null,
-      message: input.message,
-      metadata: input.metadata ?? null,
-    })
-    .select("*")
-    .single();
+  const msgPayload = {
+    conversation_id: input.conversationId,
+    sender_type: input.senderType,
+    sender_id: input.senderId ?? null,
+    message: input.message,
+    metadata: input.metadata ?? null,
+  };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (client.from("messages") as any).insert(msgPayload).select("*").single();
   if (error) throw error;
   return data as ChatMessage;
 }
@@ -87,7 +83,8 @@ export async function handleCustomerChat(
   const result = await processCustomerMessage(client, input.message);
 
   if (result.escalate) {
-    await client.from("conversations").update({ mode: "waiting_admin" }).eq("id", conversation.id);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await (client.from("conversations") as any).update({ mode: "waiting_admin" }).eq("id", conversation.id);
   }
 
   await insertMessage(client, {
@@ -101,18 +98,16 @@ export async function handleCustomerChat(
 }
 
 export async function takeOverConversation(client: Client, conversationId: string, adminId: string) {
-  const { error } = await client
-    .from("conversations")
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (client.from("conversations") as any)
     .update({ mode: "admin", assigned_admin_id: adminId })
     .eq("id", conversationId);
   if (error) throw error;
 }
 
 export async function returnConversationToBot(client: Client, conversationId: string) {
-  const { error } = await client
-    .from("conversations")
-    .update({ mode: "bot" })
-    .eq("id", conversationId);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (client.from("conversations") as any).update({ mode: "bot" }).eq("id", conversationId);
   if (error) throw error;
 }
 
@@ -126,6 +121,7 @@ export async function listConversations(client: Client) {
 }
 
 export async function setConversationMode(client: Client, conversationId: string, mode: ConversationMode) {
-  const { error } = await client.from("conversations").update({ mode }).eq("id", conversationId);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (client.from("conversations") as any).update({ mode }).eq("id", conversationId);
   if (error) throw error;
 }

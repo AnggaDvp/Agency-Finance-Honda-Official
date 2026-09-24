@@ -2,10 +2,10 @@ import type { ChatbotIntentKey, ChatContext } from "@/types/chat";
 import { HANDOVER_REPLY } from "@/lib/chatbot/escalation";
 
 const STATIC_REPLIES: Partial<Record<ChatbotIntentKey, string>> = {
-  BPKB_VEHICLE_BRAND: "Bisa kak 😊 Yamaha maksimal 10 tahun ke belakang ya. Tipe dan tahun motornya apa?",
-  BPKB_VEHICLE_AGE: "Usia kendaraan maksimal 10 tahun ke belakang ya kak. Tipe dan tahun motornya apa?",
+  BPKB_VEHICLE_BRAND: "Bisa kak 😊 Tipe dan tahun motornya apa?",
+  BPKB_VEHICLE_AGE: "Sebutkan tipe dan tahun motornya ya kak, nanti saya cek ketersediaannya.",
   BPKB_REQUIREMENT:
-    "Pengajuan Dana BPKB bisa untuk Honda, Yamaha, dan Kawasaki maksimal 10 tahun ke belakang. Tipe dan tahun motornya apa kak?",
+    "Pengajuan Dana BPKB bisa untuk Honda, Yamaha, dan Kawasaki. Tipe dan tahun motornya apa kak?",
   BPKB_DOCUMENT: "Syarat dokumen: KTP, KK, STNK aktif, dan BPKB asli ya kak.",
   INCOME_REQUIREMENT:
     "Untuk besaran gaji, ajukan dulu saja kak 😊 Nanti akan dianalisis oleh tim kami dan kami informasikan kembali setelah pengajuan.",

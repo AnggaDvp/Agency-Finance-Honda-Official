@@ -14,21 +14,19 @@ export async function createBpkbApplication(client: Client, input: BpkbApplicati
     address: input.address,
   });
 
-  const { data, error } = await client
-    .from("applications")
-    .insert({
-      customer_id: customer.id,
-      application_type: "bpkb_financing",
-      vehicle_type: input.vehicle_type,
-      vehicle_year: input.vehicle_year,
-      vehicle_plate: input.vehicle_plate,
-      requested_amount: input.requested_amount,
-      selected_tenor: input.selected_tenor,
-      source: input.source ?? "website",
-      status: "submitted",
-    })
-    .select("*")
-    .single();
+  const insertPayload = {
+    customer_id: customer.id,
+    application_type: "bpkb_financing" as const,
+    vehicle_type: input.vehicle_type,
+    vehicle_year: input.vehicle_year,
+    vehicle_plate: input.vehicle_plate,
+    requested_amount: input.requested_amount,
+    selected_tenor: input.selected_tenor,
+    source: input.source ?? "website",
+    status: "submitted" as const,
+  };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (client.from("applications") as any).insert(insertPayload).select("*").single();
 
   if (error) throw error;
   return data as Application;
@@ -51,21 +49,19 @@ export async function createMotorcycleApplication(client: Client, input: Motorcy
     estimated = simulation.available ? simulation.rate.installment : null;
   }
 
-  const { data, error } = await client
-    .from("applications")
-    .insert({
-      customer_id: customer.id,
-      application_type: "new_motorcycle",
-      motorcycle_id: input.motorcycle_id,
-      selected_dp: input.selected_dp,
-      selected_tenor: input.selected_tenor,
-      estimated_installment: estimated,
-      payment_method: input.payment_method,
-      source: input.source ?? "website",
-      status: "submitted",
-    })
-    .select("*")
-    .single();
+  const insertPayloadMotor = {
+    customer_id: customer.id,
+    application_type: "new_motorcycle" as const,
+    motorcycle_id: input.motorcycle_id,
+    selected_dp: input.selected_dp,
+    selected_tenor: input.selected_tenor,
+    estimated_installment: estimated,
+    payment_method: input.payment_method,
+    source: input.source ?? "website",
+    status: "submitted" as const,
+  };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (client.from("applications") as any).insert(insertPayloadMotor).select("*").single();
 
   if (error) throw error;
   return data as Application;

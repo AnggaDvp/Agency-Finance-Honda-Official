@@ -9,6 +9,7 @@ export type MotorcycleRate = {
   otr_price: number;
   period: string;
   area: string;
+  interest_rate?: number | string;
   status: RateStatus;
   created_at: string;
   updated_at: string;

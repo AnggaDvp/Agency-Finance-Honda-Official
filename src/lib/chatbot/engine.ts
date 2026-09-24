@@ -49,11 +49,8 @@ export async function processCustomerMessage(client: Client, message: string) {
     .eq("active", true)
     .maybeSingle();
 
-  const rows = (kb?.chatbot_responses ?? []) as Array<{
-    response_text: string;
-    priority: number;
-    active: boolean;
-  }>;
+  const kbRecord = kb as unknown as { chatbot_responses: Array<{ response_text: string; priority: number; active: boolean }> } | null;
+  const rows = kbRecord?.chatbot_responses ?? [];
   const knowledge = rows.filter((row) => row.active).sort((a, b) => a.priority - b.priority)[0];
 
   return {
@@ -62,4 +59,29 @@ export async function processCustomerMessage(client: Client, message: string) {
     escalate: false,
     context,
   };
+}
+
+export async function generateReply(
+  message: string,
+  opts?: { conversation_id?: string; supabaseClient?: Client | null },
+): Promise<string> {
+  void opts?.conversation_id;
+  const client = opts?.supabaseClient;
+
+  const intent = detectIntent(message);
+  const context = extractContext(message);
+  if (shouldEscalate(intent, message)) {
+    return HANDOVER_REPLY;
+  }
+
+  if (client) {
+    try {
+      const result = await processCustomerMessage(client, message);
+      return result.reply;
+    } catch {
+      return staticReplyFor(intent, context);
+    }
+  }
+
+  return staticReplyFor(intent, context);
 }

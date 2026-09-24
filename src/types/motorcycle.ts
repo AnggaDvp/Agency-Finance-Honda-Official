@@ -15,6 +15,10 @@ export type Motorcycle = {
   stock: number;
   status: MotorcycleStatus;
   slug: string;
+  promo_active?: boolean;
+  fuel_capacity_l?: number;
+  power_torque?: string;
+  braking_system?: string;
   created_at: string;
   updated_at: string;
 };
