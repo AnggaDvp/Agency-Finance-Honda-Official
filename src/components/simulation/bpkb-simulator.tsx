@@ -17,7 +17,7 @@ const DEFAULT_TAHUN = 2022;
 const DEFAULT_SKEMA: Skema = "NORMAL";
 const DEFAULT_TENOR = 12;
 const DEFAULT_PAJAK: PajakStatus = "hidup";
-const PAJAK_MATI_MULTIPLIER = 1.25;
+const PAJAK_MATI_MULTIPLIER = 1.025;
 
 const BASE_INSTALLMENT_TABLE: Record<number, number> = {
   6: 2_549_000,
@@ -252,7 +252,7 @@ export function BpkbSimulator() {
               </button>
             </div>
             <p className="mt-1.5 text-[10px] font-semibold uppercase tracking-widest text-slate-400">
-              {pajak === "mati" ? `Kenaikan +${Math.round((PAJAK_MATI_MULTIPLIER - 1) * 100)}% angsuran` : "Angsuran normal"}
+              {pajak === "mati" ? `Kenaikan +${((PAJAK_MATI_MULTIPLIER - 1) * 100).toFixed(1).replace('.', ',')}% angsuran` : "Angsuran normal"}
             </p>
           </div>
         </div>
@@ -414,7 +414,7 @@ export function BpkbSimulator() {
             Hasil bersifat estimasi berdasarkan pencairan{" "}
             <strong>{formatRupiah(pencairan)}</strong>, motor tahun{" "}
             <strong>{tahun}</strong>, dan status pajak <strong>{pajak.toUpperCase()}</strong>
-            {pajak === "mati" && ` (kenaikan +${Math.round((PAJAK_MATI_MULTIPLIER - 1) * 100)}%)`}
+            {pajak === "mati" && ` (kenaikan +${((PAJAK_MATI_MULTIPLIER - 1) * 100).toFixed(1).replace('.', ',')}%)`}
             . Angsuran aktual dapat berbeda setelah survey &amp; verifikasi dokumen.
           </span>
         </div>

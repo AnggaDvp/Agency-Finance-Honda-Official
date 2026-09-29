@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import {
   Building2,
   Target,
@@ -16,39 +19,31 @@ import {
   CheckCircle2,
   ArrowRight,
   MessageCircle,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import type { ComponentType } from "react";
-
-export const metadata = {
-  title: "Tentang Kami | NSC Finance - Dealer Resmi Honda",
-  description:
-    "Profil NSC Finance, dealer resmi Honda dan penyedia layanan pembiayaan motor terpercaya dengan jaringan mitra leasing multifinance seluruh Indonesia.",
-};
 
 const NILAI_PERUSAHAAN = [
   {
     icon: ShieldCheck,
     title: "Integritas Tinggi",
     desc: "Kami menjunjung tinggi kejujuran dan transparansi dalam setiap transaksi dan layanan kami.",
-    color: "from-blue-600 to-blue-500",
   },
   {
     icon: Heart,
     title: "Berorientasi Pelanggan",
     desc: "Kepuasan nasabah adalah prioritas utama kami dengan layanan personal dan responsif.",
-    color: "from-red-600 to-red-500",
   },
   {
     icon: Handshake,
     title: "Kolaborasi Kuat",
     desc: "Sinergi solid dengan Astra Honda Motor dan seluruh mitra untuk memberikan solusi terbaik.",
-    color: "from-amber-500 to-orange-500",
   },
   {
     icon: Award,
     title: "Inovasi & Kualitas",
     desc: "Terus berinovasi menghadirkan produk pembiayaan dengan kualitas prima dan proses cepat.",
-    color: "from-emerald-600 to-emerald-500",
   },
 ];
 
@@ -209,188 +204,295 @@ const PARTNERS: { name: string; tagline: string; Logo: ComponentType<PartnerLogo
   },
 ];
 
+function StatsCarousel() {
+  const [current, setCurrent] = useState(0);
+  const total = STATISTIK.length;
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrent((prev) => (prev + 1) % total);
+    }, 3500);
+    return () => clearInterval(timer);
+  }, [total]);
+
+  const goPrev = () => setCurrent((prev) => (prev - 1 + total) % total);
+  const goNext = () => setCurrent((prev) => (prev + 1) % total);
+
+  const StatComp = STATISTIK[current];
+  const IconComp = StatComp.icon;
+
+  return (
+    <div className="relative mx-auto max-w-2xl">
+      <div className="relative overflow-hidden rounded-3xl border-4 border-red-700 bg-white shadow-2xl">
+        <div className="absolute left-0 top-0 h-2 w-full bg-yellow-400" />
+        <div className="absolute right-0 top-0 h-full w-2 bg-red-700" />
+        <div className="absolute bottom-0 left-0 h-2 w-full bg-red-700" />
+        <div className="absolute left-0 top-0 h-full w-2 bg-yellow-400" />
+
+        <button
+          type="button"
+          onClick={goPrev}
+          className="absolute left-3 top-1/2 z-10 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border-2 border-red-700 bg-white text-red-700 shadow-lg transition-all hover:bg-red-700 hover:text-white"
+          aria-label="Previous"
+        >
+          <ChevronLeft className="h-6 w-6" />
+        </button>
+
+        <div className="relative px-16 py-12 sm:py-16">
+          <div className="flex flex-col items-center text-center">
+            <div className="relative mb-6">
+              <div className="absolute -inset-3 rounded-full bg-yellow-400/40 blur-xl" />
+              <div className="relative flex h-24 w-24 items-center justify-center rounded-3xl border-4 border-yellow-400 bg-gradient-to-br from-red-700 to-red-600 text-white shadow-2xl">
+                <IconComp className="h-12 w-12" />
+              </div>
+            </div>
+            <p className="font-black tracking-tight text-red-700 text-6xl sm:text-7xl">
+              {StatComp.value}
+            </p>
+            <div className="mt-3 h-1 w-20 bg-yellow-400" />
+            <p className="mt-3 font-black uppercase tracking-[0.2em] text-black text-sm sm:text-base">
+              {StatComp.label}
+            </p>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={goNext}
+          className="absolute right-3 top-1/2 z-10 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border-2 border-red-700 bg-white text-red-700 shadow-lg transition-all hover:bg-red-700 hover:text-white"
+          aria-label="Next"
+        >
+          <ChevronRight className="h-6 w-6" />
+        </button>
+      </div>
+
+      <div className="mt-6 flex items-center justify-center gap-3">
+        {STATISTIK.map((_, idx) => (
+          <button
+            key={idx}
+            type="button"
+            onClick={() => setCurrent(idx)}
+            className={`h-3 rounded-full transition-all ${
+              idx === current
+                ? "w-10 bg-red-700"
+                : "w-3 border-2 border-red-700 bg-white hover:bg-yellow-400"
+            }`}
+            aria-label={`Go to slide ${idx + 1}`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function TentangKamiPage() {
   return (
-    <div className="animate-fadeIn">
-      {/* HERO */}
-      <section className="relative overflow-hidden border-b border-slate-200 bg-gradient-to-br from-slate-950 via-slate-900 to-red-950 py-20 text-white">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-red-600/20 via-transparent to-transparent" />
-        <div className="absolute -bottom-24 -right-24 h-96 w-96 rounded-full bg-red-600/10 blur-3xl" />
-        <div className="absolute -top-24 -left-24 h-96 w-96 rounded-full bg-white/5 blur-3xl" />
+    <div className="animate-fadeIn bg-white">
+      {/* HERO - HARLEY DAVIDSON STYLE */}
+      <section className="relative overflow-hidden border-b-8 border-yellow-400 bg-white py-20 sm:py-24">
+        <div className="absolute inset-0 opacity-[0.04]" style={{
+          backgroundImage: `repeating-linear-gradient(45deg, #DC2626 0px, #DC2626 2px, transparent 2px, transparent 20px)`,
+        }} />
+        <div className="absolute left-0 top-0 h-full w-3 bg-gradient-to-b from-red-700 via-yellow-400 to-red-700" />
+        <div className="absolute right-0 top-0 h-full w-3 bg-gradient-to-b from-yellow-400 via-red-700 to-yellow-400" />
 
         <div className="relative mx-auto max-w-site px-6 lg:px-12">
-          <div className="max-w-3xl">
-            <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-white backdrop-blur-sm">
-              <Building2 className="h-3.5 w-3.5 text-red-400" />
-              Profil Perusahaan
-            </span>
-
-            <h1 className="mt-6 font-display text-4xl font-bold leading-tight lg:text-6xl">
-              Tentang{" "}
-              <span className="bg-gradient-to-r from-red-400 via-red-500 to-orange-400 bg-clip-text text-transparent">
-                NSC Finance
+          <div className="max-w-4xl">
+            <div className="mb-6 flex items-center gap-4">
+              <div className="h-1 flex-1 bg-red-700" />
+              <span className="inline-flex items-center gap-2 border-4 border-red-700 bg-yellow-400 px-5 py-2 font-black uppercase tracking-[0.25em] text-black text-xs">
+                <Building2 className="h-4 w-4" />
+                Profil Perusahaan
               </span>
+              <div className="h-1 flex-1 bg-red-700" />
+            </div>
+
+            <h1 className="font-black leading-none uppercase tracking-tight text-black text-5xl sm:text-6xl lg:text-7xl xl:text-8xl">
+              Tentang
+              <br />
+              <span className="relative inline-block">
+                <span className="relative z-10 bg-gradient-to-r from-red-700 via-red-600 to-red-700 bg-clip-text text-transparent">
+                  Agency
+                </span>
+                <span className="absolute -bottom-2 left-0 h-3 w-full bg-yellow-400 -z-0" />
+              </span>
+              <span className="text-red-700"> Finance</span>
+              <span className="text-yellow-500"> Honda</span>
             </h1>
 
-            <p className="mt-6 text-lg leading-relaxed text-slate-300 lg:text-xl">
+            <p className="mt-10 max-w-3xl font-semibold leading-relaxed text-black text-lg lg:text-xl">
               Dealer resmi Honda dan perusahaan pembiayaan motor terpercaya di Indonesia,
               berkomitmen menghadirkan solusi pembiayaan motor impian Anda dengan proses cepat,
               aman, dan terverifikasi OJK.
             </p>
 
-            <div className="mt-10 flex flex-wrap gap-3">
-              <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs font-bold uppercase tracking-wider backdrop-blur-sm">
-                Terverifikasi OJK
-              </span>
-              <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs font-bold uppercase tracking-wider backdrop-blur-sm">
-                Partner Resmi Astra Honda
-              </span>
-              <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs font-bold uppercase tracking-wider backdrop-blur-sm">
-                Proses Cepat 1x24 Jam
-              </span>
-              <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs font-bold uppercase tracking-wider backdrop-blur-sm">
-                <Handshake className="h-3.5 w-3.5 text-amber-300" />
-                6+ Mitra Leasing Resmi
-              </span>
+            <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="group relative overflow-hidden border-4 border-black bg-white p-4 transition-all hover:-translate-y-1 hover:shadow-[8px_8px_0_0_#DC2626]">
+                <div className="absolute left-0 top-0 h-1 w-full bg-yellow-400" />
+                <span className="font-black uppercase tracking-wider text-black text-xs">
+                  Terverifikasi OJK
+                </span>
+              </div>
+              <div className="group relative overflow-hidden border-4 border-black bg-white p-4 transition-all hover:-translate-y-1 hover:shadow-[8px_8px_0_0_#DC2626]">
+                <div className="absolute left-0 top-0 h-1 w-full bg-yellow-400" />
+                <span className="font-black uppercase tracking-wider text-black text-xs">
+                  Partner Resmi Astra Honda
+                </span>
+              </div>
+              <div className="group relative overflow-hidden border-4 border-black bg-white p-4 transition-all hover:-translate-y-1 hover:shadow-[8px_8px_0_0_#DC2626]">
+                <div className="absolute left-0 top-0 h-1 w-full bg-yellow-400" />
+                <span className="font-black uppercase tracking-wider text-black text-xs">
+                  Proses Cepat 1x24 Jam
+                </span>
+              </div>
+              <div className="group relative overflow-hidden border-4 border-black bg-white p-4 transition-all hover:-translate-y-1 hover:shadow-[8px_8px_0_0_#DC2626]">
+                <div className="absolute left-0 top-0 h-1 w-full bg-yellow-400" />
+                <span className="inline-flex items-center gap-2 font-black uppercase tracking-wider text-black text-xs">
+                  <Handshake className="h-4 w-4 text-red-700" />
+                  6+ Mitra Leasing Resmi
+                </span>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* STATISTIK */}
-      <section className="mx-auto max-w-site -mt-10 px-6 lg:px-12">
-        <div className="grid gap-4 rounded-3xl border border-slate-200 bg-white p-6 shadow-xl lg:grid-cols-4 lg:p-8">
-          {STATISTIK.map((stat, i) => {
-            const IconComp = stat.icon;
-            return (
-              <div
-                key={i}
-                className="relative flex items-center gap-4 p-4 lg:flex-col lg:items-start lg:text-center"
-              >
-                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-red-600 to-red-500 text-white shadow-lg shadow-red-200">
-                  <IconComp className="h-7 w-7" />
-                </div>
-                <div>
-                  <p className="font-display text-3xl font-bold text-slate-900 lg:text-4xl">
-                    {stat.value}
-                  </p>
-                  <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 lg:mt-1">
-                    {stat.label}
-                  </p>
-                </div>
-                {i < STATISTIK.length - 1 && (
-                  <div className="absolute right-0 top-1/2 hidden h-12 w-px -translate-y-1/2 bg-slate-200 lg:block" />
-                )}
-              </div>
-            );
-          })}
+      {/* STATISTIK CAROUSEL */}
+      <section className="relative bg-gradient-to-b from-white via-yellow-50/50 to-white py-16 sm:py-20">
+        <div className="mx-auto max-w-site px-6 lg:px-12">
+          <div className="mb-12 text-center">
+            <div className="mx-auto mb-4 flex items-center gap-4 max-w-md">
+              <div className="h-1 flex-1 bg-yellow-400" />
+              <div className="h-3 w-3 rotate-45 bg-red-700" />
+              <div className="h-1 flex-1 bg-red-700" />
+            </div>
+            <h2 className="font-black uppercase tracking-[0.15em] text-black text-3xl sm:text-4xl lg:text-5xl">
+              Angka <span className="text-red-700">Kami</span>
+            </h2>
+            <p className="mx-auto mt-4 max-w-xl font-semibold text-black/70 text-base">
+              Perjalanan kami yang telah dipercaya oleh puluhan ribu nasabah di seluruh Indonesia.
+            </p>
+          </div>
+          <StatsCarousel />
         </div>
       </section>
 
       {/* PROFILE + VISI MISI */}
-      <section className="mx-auto max-w-site px-6 py-20 lg:px-12">
-        <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
-          {/* KIRI: PROFILE CARD */}
-          <div className="relative">
-            <div className="absolute -inset-4 rounded-3xl bg-gradient-to-br from-red-600/20 via-transparent to-amber-500/10 blur-2xl" />
-            <div className="relative overflow-hidden rounded-3xl border border-slate-200 bg-white p-8 shadow-lg">
-              <div className="absolute right-4 top-4 inline-flex items-center gap-2 rounded-full bg-red-50 px-3 py-1.5">
-                <Award className="h-4 w-4 text-red-600" />
-                <span className="text-[11px] font-bold uppercase tracking-widest text-red-700">
-                  Sejak 2009
-                </span>
-              </div>
+      <section className="relative border-t-4 border-red-700 bg-white py-20">
+        <div className="absolute left-0 top-0 h-2 w-full bg-yellow-400" />
+        <div className="mx-auto max-w-site px-6 lg:px-12">
+          <div className="grid gap-12 lg:grid-cols-2 lg:items-start">
+            {/* KIRI: PROFILE CARD - HARLEY STYLE */}
+            <div className="relative">
+              <div className="absolute -top-3 -left-3 h-full w-full border-4 border-yellow-400 rounded-none" />
+              <div className="absolute -bottom-3 -right-3 h-full w-full border-4 border-red-700 rounded-none" />
+              <div className="relative overflow-hidden border-4 border-black bg-white p-8 shadow-xl">
+                <div className="absolute left-0 top-0 h-2 w-full bg-gradient-to-r from-red-700 via-yellow-400 to-red-700" />
+                <div className="absolute right-0 top-0 flex h-14 items-center gap-2 border-l-4 border-b-4 border-black bg-yellow-400 px-5">
+                  <Award className="h-5 w-5 text-black" />
+                  <span className="font-black uppercase tracking-[0.2em] text-black text-[10px]">
+                    Sejak 2009
+                  </span>
+                </div>
 
-              <div className="mt-12 space-y-6">
-                <div className="flex gap-4">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-slate-900 text-white">
-                    <Building2 className="h-6 w-6" />
+                <div className="mt-16 space-y-6">
+                  <div className="flex gap-4">
+                    <div className="flex h-14 w-14 shrink-0 items-center justify-center border-4 border-yellow-400 bg-red-700 text-white">
+                      <Building2 className="h-7 w-7" />
+                    </div>
+                    <div>
+                      <h3 className="font-black uppercase text-black text-xl">
+                        PT Nusantara Sakti Cendikia
+                      </h3>
+                      <p className="mt-1 font-bold uppercase tracking-widest text-red-700 text-xs">
+                        Dealer Resmi Honda &amp; Pembiayaan
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="border-l-4 border-yellow-400 pl-4">
+                    <p className="font-semibold leading-relaxed text-black">
+                      <strong className="text-red-700 uppercase">Agency Finance Honda</strong> adalah perusahaan yang
+                      bergerak di bidang dealer resmi kendaraan roda dua merek Honda dan penyedia
+                      layanan pembiayaan konsumen (multifinance) motor terpercaya di Indonesia.
+                    </p>
+                  </div>
+
+                  <p className="font-semibold leading-relaxed text-black/80">
+                    Sebagai mitra strategis <strong className="text-red-700">Astra Honda Motor (AHM)</strong>, kami menyediakan
+                    unit motor Honda terbaru dari varian bebek, matic, sport, hingga adventure dengan
+                    kualitas terjamin dan garansi resmi pabrik.
+                  </p>
+
+                  <div className="grid grid-cols-2 gap-4 pt-4">
+                    <div className="border-4 border-black p-5">
+                      <div className="mb-2 h-1 w-8 bg-yellow-400" />
+                      <p className="font-black uppercase tracking-widest text-red-700 text-[10px]">
+                        Kantor Pusat
+                      </p>
+                      <p className="mt-2 font-bold text-black">Jakarta Selatan</p>
+                    </div>
+                    <div className="border-4 border-black p-5">
+                      <div className="mb-2 h-1 w-8 bg-red-700" />
+                      <p className="font-black uppercase tracking-widest text-red-700 text-[10px]">
+                        Lisensi OJK
+                      </p>
+                      <p className="mt-2 font-bold text-black">Terverifikasi</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* KANAN: VISI MISI */}
+            <div className="space-y-8">
+              <div className="relative overflow-hidden border-4 border-black bg-white p-8 shadow-lg">
+                <div className="absolute left-0 top-0 h-full w-2 bg-gradient-to-b from-red-700 to-yellow-400" />
+                <div className="absolute right-0 top-0 h-16 w-16 bg-yellow-400 -translate-y-8 translate-x-8 rotate-45" />
+                <div className="relative flex gap-5">
+                  <div className="flex h-16 w-16 shrink-0 items-center justify-center border-4 border-black bg-gradient-to-br from-red-700 to-red-600 text-white shadow-lg">
+                    <Eye className="h-8 w-8" />
                   </div>
                   <div>
-                    <h3 className="font-display text-xl font-bold text-slate-900">
-                      PT Nusantara Sakti Cendikia
+                    <h3 className="font-black uppercase tracking-tight text-black text-2xl">
+                      <span className="text-red-700">VISI</span>
                     </h3>
-                    <p className="mt-1 text-sm font-semibold uppercase tracking-wider text-slate-500">
-                      Dealer Resmi Honda &amp; Pembiayaan
+                    <div className="mt-2 h-1 w-16 bg-yellow-400" />
+                    <p className="mt-4 font-semibold leading-relaxed text-black">
+                      Menjadi{" "}
+                      <strong className="text-red-700">
+                        dealer resmi Honda dan perusahaan pembiayaan motor nomor satu terpercaya
+                      </strong>{" "}
+                      di Indonesia yang mampu memberikan solusi keuangan inklusif, cepat, dan bernilai
+                      tambah bagi seluruh lapisan masyarakat.
                     </p>
-                  </div>
-                </div>
-
-                <p className="leading-relaxed text-slate-700">
-                  <strong className="text-slate-900">NSC Finance</strong> adalah perusahaan yang
-                  bergerak di bidang dealer resmi kendaraan roda dua merek Honda dan penyedia
-                  layanan pembiayaan konsumen (multifinance) motor terpercaya di Indonesia. Kami
-                  hadir untuk memudahkan setiap individu memiliki motor impian dengan skema
-                  pembiayaan yang fleksibel, aman, dan terjangkau.
-                </p>
-
-                <p className="leading-relaxed text-slate-700">
-                  Sebagai mitra strategis <strong>Astra Honda Motor (AHM)</strong>, kami menyediakan
-                  unit motor Honda terbaru dari varian bebek, matic, sport, hingga adventure dengan
-                  kualitas terjamin dan garansi resmi pabrik. Didukung oleh tim profesional
-                  berpengalaman dan jaringan cabang yang luas di seluruh Indonesia.
-                </p>
-
-                <div className="grid grid-cols-2 gap-3 pt-4">
-                  <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                    <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500">
-                      Kantor Pusat
-                    </p>
-                    <p className="mt-1 text-sm font-semibold text-slate-900">Jakarta Selatan</p>
-                  </div>
-                  <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                    <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500">
-                      Lisensi OJK
-                    </p>
-                    <p className="mt-1 text-sm font-semibold text-slate-900">Terverifikasi</p>
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
 
-          {/* KANAN: VISI MISI */}
-          <div className="space-y-10">
-            <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
-              <div className="absolute right-0 top-0 h-32 w-32 rounded-full bg-gradient-to-br from-red-600/10 to-transparent blur-2xl" />
-              <div className="relative flex gap-5">
-                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-red-600 to-red-500 text-white shadow-lg shadow-red-200">
-                  <Eye className="h-7 w-7" />
-                </div>
-                <div>
-                  <h3 className="font-display text-2xl font-bold uppercase tracking-tight text-slate-900">
-                    Visi
-                  </h3>
-                  <p className="mt-3 leading-relaxed text-slate-700">
-                    Menjadi{" "}
-                    <strong>
-                      dealer resmi Honda dan perusahaan pembiayaan motor nomor satu terpercaya
-                    </strong>{" "}
-                    di Indonesia yang mampu memberikan solusi keuangan inklusif, cepat, dan bernilai
-                    tambah bagi seluruh lapisan masyarakat.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
-              <div className="absolute right-0 top-0 h-32 w-32 rounded-full bg-gradient-to-br from-amber-500/10 to-transparent blur-2xl" />
-              <div className="relative flex gap-5">
-                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-200">
-                  <Target className="h-7 w-7" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-display text-2xl font-bold uppercase tracking-tight text-slate-900">
-                    Misi
-                  </h3>
-                  <ul className="mt-3 space-y-3">
-                    {MISI_LIST.map((item, idx) => (
-                      <li key={idx} className="flex items-start gap-3">
-                        <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-500" />
-                        <span className="leading-relaxed text-slate-700">{item}</span>
-                      </li>
-                    ))}
-                  </ul>
+              <div className="relative overflow-hidden border-4 border-black bg-white p-8 shadow-lg">
+                <div className="absolute left-0 top-0 h-full w-2 bg-gradient-to-b from-yellow-400 to-red-700" />
+                <div className="absolute right-0 top-0 h-16 w-16 bg-red-700 -translate-y-8 translate-x-8 rotate-45" />
+                <div className="relative flex gap-5">
+                  <div className="flex h-16 w-16 shrink-0 items-center justify-center border-4 border-black bg-gradient-to-br from-yellow-400 to-yellow-500 text-black shadow-lg">
+                    <Target className="h-8 w-8" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-black uppercase tracking-tight text-black text-2xl">
+                      <span className="text-red-700">MISI</span>
+                    </h3>
+                    <div className="mt-2 h-1 w-16 bg-yellow-400" />
+                    <ul className="mt-4 space-y-4">
+                      {MISI_LIST.map((item, idx) => (
+                        <li key={idx} className="flex items-start gap-4">
+                          <div className="mt-1 flex h-6 w-6 shrink-0 items-center justify-center border-2 border-black bg-yellow-400 text-black">
+                            <span className="font-black text-xs">{idx + 1}</span>
+                          </div>
+                          <span className="font-semibold leading-relaxed text-black">{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 </div>
               </div>
             </div>
@@ -399,40 +501,47 @@ export default function TentangKamiPage() {
       </section>
 
       {/* NILAI PERUSAHAAN */}
-      <section className="border-y border-slate-200 bg-gradient-to-br from-slate-50 via-white to-slate-50 py-20">
-        <div className="mx-auto max-w-site px-6 lg:px-12">
+      <section className="relative border-y-4 border-yellow-400 bg-white py-20">
+        <div className="absolute inset-0 opacity-[0.02]" style={{
+          backgroundImage: `repeating-linear-gradient(-45deg, #DC2626 0px, #DC2626 2px, transparent 2px, transparent 30px)`,
+        }} />
+        <div className="relative mx-auto max-w-site px-6 lg:px-12">
           <div className="mx-auto max-w-2xl text-center">
-            <span className="inline-flex items-center gap-2 rounded-full bg-red-50 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-red-700">
-              <Award className="h-3.5 w-3.5" />
-              Core Values
-            </span>
-            <h2 className="mt-4 font-display text-3xl font-bold uppercase text-slate-900 lg:text-4xl">
-              Nilai-Nilai Perusahaan
+            <div className="mx-auto mb-4 flex items-center gap-4 max-w-sm">
+              <div className="h-1 flex-1 bg-red-700" />
+              <span className="inline-flex items-center gap-2 border-2 border-black bg-yellow-400 px-4 py-1.5 font-black uppercase tracking-[0.25em] text-black text-xs">
+                <Award className="h-4 w-4" />
+                Core Values
+              </span>
+              <div className="h-1 flex-1 bg-red-700" />
+            </div>
+            <h2 className="font-black uppercase text-black text-3xl sm:text-4xl lg:text-5xl">
+              Nilai-Nilai <span className="text-red-700">Perusahaan</span>
             </h2>
-            <p className="mt-4 text-slate-600">
-              Empat pilar nilai yang menjadi dasar kami dalam melayani setiap nasabah dan menjalankan
-              bisnis.
+            <p className="mt-4 font-semibold text-black/70">
+              Empat pilar nilai yang menjadi dasar kami dalam melayani setiap nasabah.
             </p>
           </div>
 
           <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {NILAI_PERUSAHAAN.map((item, i) => {
               const IconComp = item.icon;
-              const topBarClass = `absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${item.color}`;
-              const iconWrapClass = `mb-5 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${item.color} text-white shadow-lg transition-transform duration-300 group-hover:scale-110`;
               return (
                 <div
                   key={i}
-                  className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-7 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+                  className="group relative overflow-hidden border-4 border-black bg-white p-7 transition-all duration-300 hover:-translate-y-2"
+                  style={{ boxShadow: "8px 8px 0 0 #DC2626" }}
                 >
-                  <div className={topBarClass} />
-                  <div className={iconWrapClass}>
-                    <IconComp className="h-7 w-7" />
+                  <div className="absolute left-0 top-0 h-1.5 w-full bg-yellow-400" />
+                  <div className="absolute right-0 top-0 h-4 w-4 bg-red-700" />
+                  <div className="mb-6 inline-flex h-16 w-16 items-center justify-center border-4 border-black bg-red-700 text-white shadow-lg transition-transform duration-300 group-hover:scale-110 group-hover:bg-yellow-400 group-hover:text-black">
+                    <IconComp className="h-8 w-8" />
                   </div>
-                  <h3 className="font-display text-xl font-bold uppercase text-slate-900">
+                  <h3 className="font-black uppercase text-black text-lg">
                     {item.title}
                   </h3>
-                  <p className="mt-3 text-sm leading-relaxed text-slate-600">{item.desc}</p>
+                  <div className="mt-3 h-1 w-12 bg-yellow-400" />
+                  <p className="mt-4 font-semibold leading-relaxed text-black/80 text-sm">{item.desc}</p>
                 </div>
               );
             })}
@@ -441,21 +550,24 @@ export default function TentangKamiPage() {
       </section>
 
       {/* MITRA PEMBIAYAAN */}
-      <section className="bg-white py-20">
+      <section className="relative bg-white py-20">
         <div className="mx-auto max-w-site px-6 lg:px-12">
           <div className="mx-auto max-w-3xl text-center">
-            <span className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-white">
-              <Handshake className="h-3.5 w-3.5 text-amber-300" />
-              Partner Terpercaya
-            </span>
-            <h2 className="mt-4 font-display text-3xl font-bold uppercase text-slate-900 lg:text-4xl">
-              Mitra Pembiayaan Resmi
+            <div className="mx-auto mb-4 flex items-center gap-4 max-w-md">
+              <div className="h-1 flex-1 bg-yellow-400" />
+              <span className="inline-flex items-center gap-2 border-4 border-black bg-red-700 px-5 py-2 font-black uppercase tracking-[0.25em] text-white text-xs">
+                <Handshake className="h-4 w-4 text-yellow-400" />
+                Partner Terpercaya
+              </span>
+              <div className="h-1 flex-1 bg-yellow-400" />
+            </div>
+            <h2 className="font-black uppercase text-black text-3xl sm:text-4xl lg:text-5xl">
+              Mitra <span className="text-red-700">Pembiayaan</span> Resmi
             </h2>
-            <p className="mt-4 leading-relaxed text-slate-600">
-              NSC Finance bekerjasama dengan{" "}
-              <strong className="text-slate-900">enam perusahaan multifinance leasing terbesar</strong> dan
-              terpercaya di Indonesia untuk memastikan pengajuan Anda mendapatkan persetujuan tercepat
-              dengan skema bunga terbaik dan fleksibel.
+            <p className="mt-4 font-semibold leading-relaxed text-black/70 text-base">
+              Agency Finance Honda bekerjasama dengan{" "}
+              <strong className="text-black">enam perusahaan multifinance leasing terbesar</strong> dan
+              terpercaya di Indonesia.
             </p>
           </div>
 
@@ -465,68 +577,75 @@ export default function TentangKamiPage() {
               return (
                 <div
                   key={partner.name}
-                  className="group relative flex cursor-default flex-col items-center justify-center rounded-2xl border border-slate-200 bg-gradient-to-br from-white via-slate-50 to-white px-4 py-8 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-red-300 hover:shadow-xl hover:shadow-red-100/60"
+                  className="group relative cursor-default overflow-hidden border-4 border-black bg-white p-6 transition-all duration-300 hover:-translate-y-2"
+                  style={{ boxShadow: "8px 8px 0 0 #FACC15" }}
                 >
-                  <div className="relative mb-5 flex h-16 w-full items-center justify-center transition-all duration-300">
-                    <div className="absolute inset-0 flex h-full w-full items-center justify-center grayscale transition-all duration-300 group-hover:grayscale-0">
+                  <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-red-700 via-yellow-400 to-red-700 origin-left scale-x-0 transition-transform duration-500 group-hover:scale-x-100" />
+                  <div className="relative mb-5 flex h-16 w-full items-center justify-center">
+                    <div className="absolute inset-0 flex h-full w-full items-center justify-center transition-all duration-300 grayscale group-hover:grayscale-0">
                       <LogoComp className="h-full w-full object-contain" />
                     </div>
                   </div>
-                  <div className="w-full border-t border-slate-100 pt-4 text-center">
-                    <p className="font-display text-sm font-bold uppercase tracking-wider text-slate-900">
+                  <div className="w-full border-t-2 border-black pt-4 text-center">
+                    <p className="font-black uppercase tracking-wider text-black text-xs">
                       {partner.name}
                     </p>
-                    <p className="mt-1 text-[10px] font-semibold uppercase tracking-widest text-slate-400">
+                    <p className="mt-1 font-bold uppercase tracking-widest text-red-700 text-[10px]">
                       {partner.tagline}
                     </p>
                   </div>
-                  <div className="absolute inset-x-0 top-0 h-1 scale-x-0 rounded-t-2xl bg-gradient-to-r from-red-600 to-amber-500 transition-transform duration-300 group-hover:scale-x-100" />
                 </div>
               );
             })}
           </div>
 
           <div className="mt-14 grid gap-6 md:grid-cols-3">
-            <div className="flex items-start gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-6">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-red-600 text-white shadow-md shadow-red-200">
-                <CheckCircle2 className="h-6 w-6" />
-              </div>
-              <div>
-                <h3 className="font-display text-base font-bold uppercase tracking-tight text-slate-900">
-                  Lebih Mudah Disetujui
-                </h3>
-                <p className="mt-2 text-sm leading-relaxed text-slate-600">
-                  Memiliki 6 mitra leasing sekaligus membuat peluang pengajuan Anda disetujui jauh lebih
-                  besar dan cepat.
-                </p>
-              </div>
-            </div>
-            <div className="flex items-start gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-6">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-600 text-white shadow-md shadow-emerald-200">
-                <Award className="h-6 w-6" />
-              </div>
-              <div>
-                <h3 className="font-display text-base font-bold uppercase tracking-tight text-slate-900">
-                  Rate Bunga Kompetitif
-                </h3>
-                <p className="mt-2 text-sm leading-relaxed text-slate-600">
-                  Bandingkan penawaran dari seluruh mitra secara real-time dan pilih angsuran paling ringan
-                  untuk Anda.
-                </p>
+            <div className="relative overflow-hidden border-4 border-black bg-white p-6 transition-all hover:-translate-y-1" style={{ boxShadow: "6px 6px 0 0 #DC2626" }}>
+              <div className="absolute left-0 top-0 h-1 w-full bg-yellow-400" />
+              <div className="flex items-start gap-4">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center border-2 border-black bg-red-700 text-white">
+                  <CheckCircle2 className="h-6 w-6" />
+                </div>
+                <div>
+                  <h3 className="font-black uppercase tracking-tight text-black text-base">
+                    Lebih Mudah Disetujui
+                  </h3>
+                  <p className="mt-2 font-semibold leading-relaxed text-black/70 text-sm">
+                    Memiliki 6 mitra leasing sekaligus membuat peluang pengajuan Anda disetujui jauh lebih besar.
+                  </p>
+                </div>
               </div>
             </div>
-            <div className="flex items-start gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-6">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-white shadow-md shadow-blue-200">
-                <ShieldCheck className="h-6 w-6" />
+            <div className="relative overflow-hidden border-4 border-black bg-white p-6 transition-all hover:-translate-y-1" style={{ boxShadow: "6px 6px 0 0 #FACC15" }}>
+              <div className="absolute left-0 top-0 h-1 w-full bg-red-700" />
+              <div className="flex items-start gap-4">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center border-2 border-black bg-yellow-400 text-black">
+                  <Award className="h-6 w-6" />
+                </div>
+                <div>
+                  <h3 className="font-black uppercase tracking-tight text-black text-base">
+                    Rate Bunga Kompetitif
+                  </h3>
+                  <p className="mt-2 font-semibold leading-relaxed text-black/70 text-sm">
+                    Bandingkan penawaran dari seluruh mitra dan pilih angsuran paling ringan.
+                  </p>
+                </div>
               </div>
-              <div>
-                <h3 className="font-display text-base font-bold uppercase tracking-tight text-slate-900">
-                  Terdaftar &amp; Berizin OJK
-                </h3>
-                <p className="mt-2 text-sm leading-relaxed text-slate-600">
-                  Seluruh mitra pembiayaan kami adalah perusahaan multifinance resmi yang terdaftar dan
-                  diawasi oleh OJK.
-                </p>
+            </div>
+            <div className="relative overflow-hidden border-4 border-black bg-white p-6 transition-all hover:-translate-y-1" style={{ boxShadow: "6px 6px 0 0 #DC2626" }}>
+              <div className="absolute left-0 top-0 h-1 w-full bg-yellow-400" />
+              <div className="flex items-start gap-4">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center border-2 border-black bg-red-700 text-white">
+                  <ShieldCheck className="h-6 w-6" />
+                </div>
+                <div>
+                  <h3 className="font-black uppercase tracking-tight text-black text-base">
+                    Terdaftar &amp; Berizin OJK
+                  </h3>
+                  <p className="mt-2 font-semibold leading-relaxed text-black/70 text-sm">
+                    Seluruh mitra pembiayaan kami adalah perusahaan resmi yang terdaftar OJK.
+                  </p>
+                </div>
               </div>
             </div>
           </div>
@@ -534,142 +653,160 @@ export default function TentangKamiPage() {
       </section>
 
       {/* KONTAK */}
-      <section className="mx-auto max-w-site px-6 py-20 lg:px-12">
-        <div className="grid gap-8 lg:grid-cols-5">
-          <div className="lg:col-span-2">
-            <span className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-white">
-              <MapPin className="h-3.5 w-3.5 text-red-400" />
-              Kantor Pusat
-            </span>
-            <h2 className="mt-4 font-display text-3xl font-bold uppercase text-slate-900 lg:text-4xl">
-              Hubungi Kami
-            </h2>
-            <p className="mt-4 leading-relaxed text-slate-600">
-              Tim Customer Service kami siap membantu Anda setiap hari kerja. Kunjungi kantor cabang
-              terdekat atau hubungi kontak di bawah untuk pelayanan cepat.
-            </p>
-
-            <div className="mt-8 space-y-4">
-              <a
-                href="tel:0211500672"
-                className="group flex items-center gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-all hover:border-red-200 hover:shadow-md"
-              >
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-red-600 text-white shadow-md shadow-red-200">
-                  <Phone className="h-5 w-5" />
-                </div>
-                <div className="flex-1">
-                  <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500">
-                    Hotline Customer Service
-                  </p>
-                  <p className="mt-1 font-display text-lg font-bold text-slate-900">
-                    (021) 1500-672
-                  </p>
-                </div>
-                <ArrowRight className="h-5 w-5 text-slate-300 transition-all group-hover:translate-x-1 group-hover:text-red-600" />
-              </a>
-
-              <a
-                href="https://wa.me/6281288886720"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group flex items-center gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-all hover:border-emerald-200 hover:shadow-md"
-              >
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-600 text-white shadow-md shadow-emerald-200">
-                  <MessageCircle className="h-5 w-5" />
-                </div>
-                <div className="flex-1">
-                  <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500">
-                    WhatsApp Resmi
-                  </p>
-                  <p className="mt-1 font-display text-lg font-bold text-slate-900">
-                    0812-8888-6720
-                  </p>
-                </div>
-                <ArrowRight className="h-5 w-5 text-slate-300 transition-all group-hover:translate-x-1 group-hover:text-emerald-600" />
-              </a>
-
-              <a
-                href="mailto:care@agencyhonda.co.id"
-                className="group flex items-center gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-all hover:border-blue-200 hover:shadow-md"
-              >
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-white shadow-md shadow-blue-200">
-                  <Mail className="h-5 w-5" />
-                </div>
-                <div className="flex-1">
-                  <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500">
-                    Email Customer Care
-                  </p>
-                  <p className="mt-1 font-display text-lg font-bold text-slate-900">
-                    care@agencyhonda.co.id
-                  </p>
-                </div>
-                <ArrowRight className="h-5 w-5 text-slate-300 transition-all group-hover:translate-x-1 group-hover:text-blue-600" />
-              </a>
-            </div>
-          </div>
-
-          <div className="lg:col-span-3">
-            <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white p-8 shadow-lg">
-              <div className="mb-6 flex items-center gap-4 border-b border-slate-100 pb-6">
-                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-slate-900 to-slate-800 text-white shadow-lg">
-                  <MapPin className="h-7 w-7 text-red-400" />
-                </div>
-                <div>
-                  <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500">
-                    Alamat Kantor Pusat
-                  </p>
-                  <h3 className="mt-1 font-display text-xl font-bold text-slate-900">
-                    NSC Finance Head Office
-                  </h3>
-                </div>
+      <section className="relative border-t-4 border-red-700 bg-white py-20">
+        <div className="absolute left-0 top-0 h-2 w-full bg-yellow-400" />
+        <div className="mx-auto max-w-site px-6 lg:px-12">
+          <div className="grid gap-8 lg:grid-cols-5">
+            <div className="lg:col-span-2">
+              <div className="mb-4 flex items-center gap-3">
+                <div className="h-1 w-8 bg-yellow-400" />
+                <span className="inline-flex items-center gap-2 border-2 border-black bg-red-700 px-4 py-1.5 font-black uppercase tracking-[0.25em] text-white text-xs">
+                  <MapPin className="h-4 w-4 text-yellow-400" />
+                  Kantor Pusat
+                </span>
               </div>
+              <h2 className="font-black uppercase text-black text-3xl sm:text-4xl lg:text-5xl">
+                Hubungi <span className="text-red-700">Kami</span>
+              </h2>
+              <p className="mt-4 font-semibold leading-relaxed text-black/70">
+                Tim Customer Service kami siap membantu Anda setiap hari kerja.
+              </p>
 
-              <div className="space-y-5">
-                <div className="flex gap-4 rounded-xl bg-slate-50 p-5 ring-1 ring-slate-200">
-                  <MapPin className="h-5 w-5 shrink-0 text-red-600" />
+              <div className="mt-8 space-y-4">
+                <a
+                  href="tel:0211500672"
+                  className="group flex items-center gap-4 border-4 border-black bg-white p-4 transition-all hover:-translate-y-1"
+                  style={{ boxShadow: "6px 6px 0 0 #DC2626" }}
+                >
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center border-2 border-black bg-red-700 text-white">
+                    <Phone className="h-5 w-5" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-black uppercase tracking-widest text-red-700 text-[10px]">
+                      Hotline Customer Service
+                    </p>
+                    <p className="mt-1 font-black text-black text-lg">
+                      (021) 1500-672
+                    </p>
+                  </div>
+                  <ArrowRight className="h-5 w-5 text-black transition-all group-hover:translate-x-1 group-hover:text-red-700" />
+                </a>
+
+                <a
+                  href="https://wa.me/6281288886720"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group flex items-center gap-4 border-4 border-black bg-white p-4 transition-all hover:-translate-y-1"
+                  style={{ boxShadow: "6px 6px 0 0 #FACC15" }}
+                >
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center border-2 border-black bg-yellow-400 text-black">
+                    <MessageCircle className="h-5 w-5" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-black uppercase tracking-widest text-red-700 text-[10px]">
+                      WhatsApp Resmi
+                    </p>
+                    <p className="mt-1 font-black text-black text-lg">
+                      0812-8888-6720
+                    </p>
+                  </div>
+                  <ArrowRight className="h-5 w-5 text-black transition-all group-hover:translate-x-1 group-hover:text-red-700" />
+                </a>
+
+                <a
+                  href="mailto:care@agencyhonda.co.id"
+                  className="group flex items-center gap-4 border-4 border-black bg-white p-4 transition-all hover:-translate-y-1"
+                  style={{ boxShadow: "6px 6px 0 0 #DC2626" }}
+                >
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center border-2 border-black bg-red-700 text-white">
+                    <Mail className="h-5 w-5" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-black uppercase tracking-widest text-red-700 text-[10px]">
+                      Email Customer Care
+                    </p>
+                    <p className="mt-1 font-black text-black text-lg">
+                      care@agencyhonda.co.id
+                    </p>
+                  </div>
+                  <ArrowRight className="h-5 w-5 text-black transition-all group-hover:translate-x-1 group-hover:text-red-700" />
+                </a>
+              </div>
+            </div>
+
+            <div className="lg:col-span-3">
+              <div className="relative overflow-hidden border-4 border-black bg-white p-8 shadow-xl">
+                <div className="absolute left-0 top-0 h-2 w-full bg-gradient-to-r from-red-700 via-yellow-400 to-red-700" />
+                <div className="mb-6 flex items-center gap-4 border-b-4 border-dashed border-black pb-6">
+                  <div className="flex h-14 w-14 shrink-0 items-center justify-center border-4 border-yellow-400 bg-red-700 text-white shadow-lg">
+                    <MapPin className="h-7 w-7" />
+                  </div>
                   <div>
-                    <p className="text-xs font-bold uppercase tracking-widest text-slate-500">
-                      Alamat Lengkap
+                    <p className="font-black uppercase tracking-widest text-red-700 text-[10px]">
+                      Alamat Kantor Pusat
                     </p>
-                    <p className="mt-1 leading-relaxed text-slate-800">
-                      Jl. Gatot Subroto Kav. 42-43, Kel. Kuningan Barat, Kec. Setiabudi,
-                      <br />
-                      Jakarta Selatan, DKI Jakarta 12950
-                    </p>
+                    <h3 className="mt-1 font-black uppercase text-black text-xl">
+                      Agency Finance Honda Head Office
+                    </h3>
                   </div>
                 </div>
 
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="flex gap-4 rounded-xl bg-slate-50 p-5 ring-1 ring-slate-200">
-                    <Clock className="h-5 w-5 shrink-0 text-amber-600" />
-                    <div>
-                      <p className="text-xs font-bold uppercase tracking-widest text-slate-500">
-                        Jam Operasional
-                      </p>
-                      <ul className="mt-2 space-y-1.5">
-                        {JADWAL_OPERASIONAL.map((j, i) => (
-                          <li key={i} className="flex items-baseline justify-between text-sm">
-                            <span className="font-semibold text-slate-800">{j.hari}</span>
-                            <span className="text-slate-600">{j.jam}</span>
-                          </li>
-                        ))}
-                      </ul>
+                <div className="space-y-5">
+                  <div className="relative overflow-hidden border-4 border-black bg-white p-5">
+                    <div className="absolute left-0 top-0 h-full w-1 bg-yellow-400" />
+                    <div className="flex gap-4">
+                      <MapPin className="h-5 w-5 shrink-0 text-red-700" />
+                      <div>
+                        <p className="font-black uppercase tracking-widest text-red-700 text-[10px]">
+                          Alamat Lengkap
+                        </p>
+                        <p className="mt-1 font-semibold leading-relaxed text-black">
+                          Jl. Gatot Subroto Kav. 42-43, Kel. Kuningan Barat, Kec. Setiabudi,
+                          <br />
+                          Jakarta Selatan, DKI Jakarta 12950
+                        </p>
+                      </div>
                     </div>
                   </div>
 
-                  <div className="flex gap-4 rounded-xl bg-slate-50 p-5 ring-1 ring-slate-200">
-                    <Building2 className="h-5 w-5 shrink-0 text-slate-700" />
-                    <div>
-                      <p className="text-xs font-bold uppercase tracking-widest text-slate-500">
-                        Cabang Kami
-                      </p>
-                      <p className="mt-2 text-sm leading-relaxed text-slate-800">
-                        Tersebar di <strong>35+ kota</strong> seluruh Indonesia.
-                        <br />
-                        Jakarta, Bogor, Depok, Tangerang, Bekasi,
-                        <br />
-                        Bandung, Surabaya, Medan, Makassar, dll.
-                      </p>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="relative overflow-hidden border-4 border-black bg-white p-5">
+                      <div className="absolute left-0 top-0 h-full w-1 bg-yellow-400" />
+                      <div className="flex gap-4">
+                        <Clock className="h-5 w-5 shrink-0 text-red-700" />
+                        <div>
+                          <p className="font-black uppercase tracking-widest text-red-700 text-[10px]">
+                            Jam Operasional
+                          </p>
+                          <ul className="mt-2 space-y-1.5">
+                            {JADWAL_OPERASIONAL.map((j, i) => (
+                              <li key={i} className="flex items-baseline justify-between font-semibold text-sm">
+                                <span className="text-black">{j.hari}</span>
+                                <span className="text-black/70">{j.jam}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="relative overflow-hidden border-4 border-black bg-white p-5">
+                      <div className="absolute left-0 top-0 h-full w-1 bg-red-700" />
+                      <div className="flex gap-4">
+                        <Building2 className="h-5 w-5 shrink-0 text-red-700" />
+                        <div>
+                          <p className="font-black uppercase tracking-widest text-red-700 text-[10px]">
+                            Cabang Kami
+                          </p>
+                          <p className="mt-2 font-semibold leading-relaxed text-black text-sm">
+                            Tersebar di <strong className="text-red-700">35+ kota</strong> seluruh Indonesia.
+                            <br />
+                            Jakarta, Bogor, Depok, Tangerang, Bekasi,
+                            <br />
+                            Bandung, Surabaya, Medan, Makassar, dll.
+                          </p>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -680,33 +817,44 @@ export default function TentangKamiPage() {
       </section>
 
       {/* CTA BAWAH */}
-      <section className="bg-gradient-to-br from-red-700 via-red-600 to-red-700 py-16 text-white">
+      <section className="relative bg-white py-16">
         <div className="mx-auto max-w-site px-6 lg:px-12">
-          <div className="rounded-3xl border border-white/20 bg-white/5 p-10 backdrop-blur-sm text-center lg:p-14">
-            <h2 className="font-display text-3xl font-bold lg:text-4xl">
-              Siap Memiliki Motor Honda Impian Anda?
-            </h2>
-            <p className="mx-auto mt-4 max-w-2xl text-lg text-red-100">
-              Ajukan sekarang dan dapatkan penawaran pembiayaan terbaik dari NSC Finance. Proses
-              cepat, mudah, dan persetujuan maksimal 1x24 jam kerja.
-            </p>
-            <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-              <Link
-                href="/#katalog"
-                className="inline-flex items-center gap-2 rounded-xl bg-white px-8 py-4 text-sm font-bold uppercase tracking-wider text-red-600 transition-colors hover:bg-red-50"
-              >
-                Lihat Katalog Motor
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-              <a
-                href="https://wa.me/6281288886720"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-xl border border-white/30 bg-white/10 px-8 py-4 text-sm font-bold uppercase tracking-wider text-white transition-colors hover:bg-white/20"
-              >
-                <MessageCircle className="h-4 w-4" />
-                Chat WhatsApp CS
-              </a>
+          <div className="relative overflow-hidden border-4 border-black bg-red-700 p-10 text-center text-white lg:p-14" style={{ boxShadow: "12px 12px 0 0 #FACC15" }}>
+            <div className="absolute inset-0 opacity-10" style={{
+              backgroundImage: `repeating-linear-gradient(45deg, #000 0px, #000 2px, transparent 2px, transparent 25px)`,
+            }} />
+            <div className="absolute left-0 top-0 h-2 w-full bg-yellow-400" />
+            <div className="absolute left-0 bottom-0 h-2 w-full bg-yellow-400" />
+            <div className="relative">
+              <h2 className="font-black uppercase leading-tight text-white text-3xl lg:text-5xl">
+                Siap Memiliki Motor Honda
+                <br />
+                <span className="text-yellow-400">Impian Anda?</span>
+              </h2>
+              <p className="mx-auto mt-6 max-w-2xl font-semibold text-white/90 text-lg">
+                Ajukan sekarang dan dapatkan penawaran pembiayaan terbaik dari Agency Finance Honda. Proses
+                cepat, mudah, dan persetujuan maksimal 1x24 jam kerja.
+              </p>
+              <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
+                <Link
+                  href="/#katalog"
+                  className="inline-flex items-center gap-2 border-4 border-black bg-yellow-400 px-8 py-4 font-black uppercase tracking-wider text-black transition-all hover:-translate-y-1 hover:bg-yellow-300"
+                  style={{ boxShadow: "6px 6px 0 0 #000" }}
+                >
+                  Lihat Katalog Motor
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+                <a
+                  href="https://wa.me/6281288886720"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 border-4 border-yellow-400 bg-white px-8 py-4 font-black uppercase tracking-wider text-red-700 transition-all hover:-translate-y-1"
+                  style={{ boxShadow: "6px 6px 0 0 #000" }}
+                >
+                  <MessageCircle className="h-4 w-4" />
+                  Chat WhatsApp CS
+                </a>
+              </div>
             </div>
           </div>
         </div>
