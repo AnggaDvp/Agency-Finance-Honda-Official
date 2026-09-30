@@ -122,9 +122,9 @@ const DUMMY_APPLICATIONS: ApplicationWithCustomer[] = [
 ];
 
 const DUMMY_CHATS: Conversation[] = [
-  { id: "conv-001", customer_id: "cust-001", assigned_admin_id: null, status: "open", mode: "waiting_admin", guest_name: "Budi Santoso", guest_phone: "081234567890", created_at: new Date(Date.now() - 1000 * 60 * 3).toISOString(), updated_at: new Date().toISOString() },
-  { id: "conv-002", customer_id: "cust-002", assigned_admin_id: "admin-01", status: "open", mode: "admin", guest_name: "Siti Aminah", guest_phone: "081298765432", created_at: new Date(Date.now() - 1000 * 60 * 15).toISOString(), updated_at: new Date().toISOString() },
-  { id: "conv-003", customer_id: null, assigned_admin_id: null, status: "open", mode: "bot", guest_name: "Guest 7842", guest_phone: null, created_at: new Date(Date.now() - 1000 * 60 * 45).toISOString(), updated_at: new Date().toISOString() },
+  { id: "conv-001", customer_id: "cust-001", application_id: "app-001", assigned_admin_id: null, status: "open", mode: "waiting_admin", guest_name: "Budi Santoso", guest_phone: "081234567890", last_message_at: new Date(Date.now() - 1000 * 60 * 2).toISOString(), created_at: new Date(Date.now() - 1000 * 60 * 3).toISOString(), updated_at: new Date().toISOString() },
+  { id: "conv-002", customer_id: "cust-002", application_id: "app-002", assigned_admin_id: "admin-01", status: "open", mode: "admin", guest_name: "Siti Aminah", guest_phone: "081298765432", last_message_at: new Date(Date.now() - 1000 * 60 * 10).toISOString(), created_at: new Date(Date.now() - 1000 * 60 * 15).toISOString(), updated_at: new Date().toISOString() },
+  { id: "conv-003", customer_id: null, application_id: null, assigned_admin_id: null, status: "open", mode: "bot", guest_name: "Guest 7842", guest_phone: null, last_message_at: new Date(Date.now() - 1000 * 60 * 30).toISOString(), created_at: new Date(Date.now() - 1000 * 60 * 45).toISOString(), updated_at: new Date().toISOString() },
 ];
 
 export const dynamic = "force-dynamic";
