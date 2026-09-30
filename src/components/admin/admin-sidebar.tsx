@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useState } from "react";
 import { cn } from "@/lib/utils/cn";
 
 const LINKS = [
@@ -17,10 +18,25 @@ const LINKS = [
 
 export function AdminSidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+
+  async function handleLogout() {
+    if (loading) return;
+    setLoading(true);
+    try {
+      const res = await fetch("/api/auth/logout", { method: "POST" });
+      const json = await res.json().catch(() => ({}));
+      router.push(json.redirectTo ?? "/login");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
-    <aside className="w-60 shrink-0 border-r border-slate-200 bg-white p-4">
+    <aside className="flex w-60 shrink-0 flex-col border-r border-slate-200 bg-white p-4">
       <p className="mb-6 font-display text-lg font-bold uppercase">NSC Admin</p>
-      <nav className="flex flex-col gap-1">
+      <nav className="flex flex-1 flex-col gap-1">
         {LINKS.map((link) => {
           const active = pathname === link.href;
           return (
@@ -34,6 +50,16 @@ export function AdminSidebar() {
           );
         })}
       </nav>
+      <button
+        onClick={handleLogout}
+        disabled={loading}
+        className={cn(
+          "mt-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-700 transition",
+          "hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60",
+        )}
+      >
+        {loading ? "Keluar..." : "Keluar (Logout)"}
+      </button>
     </aside>
   );
 }

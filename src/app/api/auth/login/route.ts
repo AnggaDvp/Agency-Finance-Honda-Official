@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
+import { createClient } from "@/lib/supabase/server";
 import { loginSchema } from "@/lib/validations/auth";
 
 export const dynamic = "force-dynamic";
@@ -16,29 +16,30 @@ export async function POST(request: Request) {
     }
 
     const { email, password } = parsed.data;
-    const VALID_ADMIN = { email: "admin@nscfinance.id", password: "password123" };
-    const VALID_USER = { email: "user@example.com", password: "password123" };
+    const supabase = await createClient();
 
-    const okAdmin = email === VALID_ADMIN.email && password === VALID_ADMIN.password;
-    const okUser = email === VALID_USER.email && password === VALID_USER.password;
-
-    if (!okAdmin && !okUser) {
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error || !data.user) {
       return NextResponse.json(
-        { error: "Email atau password salah. Gunakan demo access di halaman login." },
+        { error: "Email atau password salah. Silakan periksa kembali atau hubungi admin." },
         { status: 401 },
       );
     }
 
-    const role = okAdmin ? "admin" : "customer";
-    const cookieStore = await cookies();
-    cookieStore.set("nsc_auth", JSON.stringify({ email, role, ts: Date.now() }), {
-      httpOnly: true,
-      sameSite: "lax",
-      maxAge: 60 * 60 * 12,
-      path: "/",
-    });
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("user_id", data.user.id)
+      .maybeSingle();
 
-    return NextResponse.json({ ok: true, role });
+    let role = "customer";
+    if (!profileError && profile) {
+      role = (profile as { role: string }).role;
+    }
+
+    const redirectTo = role === "admin" || role === "supervisor" ? "/admin" : "/";
+
+    return NextResponse.json({ ok: true, role, redirectTo });
   } catch (err) {
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Login gagal" },

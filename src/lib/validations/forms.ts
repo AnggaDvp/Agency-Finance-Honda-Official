@@ -1,5 +1,19 @@
 import { z } from "zod";
 
+export const biodataOnboardingSchema = z.object({
+  full_name: z.string().min(2, "Nama lengkap minimal 2 karakter"),
+  phone: z.string().min(8, "Nomor WhatsApp minimal 8 digit"),
+  wilayah: z.string().optional(),
+  kecamatan: z.string().optional(),
+  kelurahan: z.string().optional(),
+  kode_pos: z.string().optional(),
+  nama_jalan: z.string().optional(),
+  address: z.string().optional(),
+  city: z.string().optional(),
+});
+
+export type BiodataOnboardingInput = z.infer<typeof biodataOnboardingSchema>;
+
 export const motorcycleSimulationSchema = z.object({
   motorcycleId: z.string().uuid(),
   dp: z.coerce.number().positive(),

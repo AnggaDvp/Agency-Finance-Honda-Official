@@ -1,3 +1,5 @@
+import { cookies } from "next/headers";
+import { BiodataGate } from "@/components/public/biodata-gate";
 import { HomeCtas } from "@/components/public/home-ctas";
 import { MotorcycleCard } from "@/components/motor/motorcycle-card";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -222,7 +224,16 @@ const TRUST_BADGES = [
   { icon: Phone, text: "CS Profesional 24/7" },
 ];
 
-export default function HomePage() {
+export const dynamic = "force-dynamic";
+
+export default async function HomePage() {
+  const cookieStore = await cookies();
+  const onboardedProfileId = cookieStore.get("nsc_onboarded_profile_id")?.value;
+
+  if (!onboardedProfileId) {
+    return <BiodataGate />;
+  }
+
   return (
     <div className="animate-fadeIn">
       {/* 1. CINEMATIC FULL-WIDTH HERO SECTION */}
@@ -404,12 +415,7 @@ export default function HomePage() {
               </div>
               <div className="absolute bottom-6 left-6 right-6 text-white">
                 <div className="mb-1 flex items-center gap-2">
-                  {[
-                    "Vario",
-                    "PCX",
-                    "ADV",
-                    "Beat",
-                  ].map((tag) => (
+                  {["Vario", "PCX", "ADV", "Beat"].map((tag) => (
                     <span
                       key={tag}
                       className="rounded-full bg-white/15 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider backdrop-blur-sm"
@@ -429,25 +435,19 @@ export default function HomePage() {
             <div className="flex flex-col gap-5 p-8">
               <div className="grid grid-cols-3 gap-3 text-center">
                 <div className="rounded-xl border border-red-100 bg-red-50/60 p-3">
-                  <p className="font-display text-lg font-bold text-red-600">
-                    DP 10%
-                  </p>
+                  <p className="font-display text-lg font-bold text-red-600">DP 10%</p>
                   <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
                     Min. DP
                   </p>
                 </div>
                 <div className="rounded-xl border border-amber-100 bg-amber-50/60 p-3">
-                  <p className="font-display text-lg font-bold text-amber-600">
-                    48 Bln
-                  </p>
+                  <p className="font-display text-lg font-bold text-amber-600">48 Bln</p>
                   <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
                     Tenor Max
                   </p>
                 </div>
                 <div className="rounded-xl border border-emerald-100 bg-emerald-50/60 p-3">
-                  <p className="font-display text-lg font-bold text-emerald-600">
-                    0.85%
-                  </p>
+                  <p className="font-display text-lg font-bold text-emerald-600">0.85%</p>
                   <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
                     Bunga Flat
                   </p>
@@ -514,25 +514,19 @@ export default function HomePage() {
             <div className="flex flex-col gap-5 p-8">
               <div className="grid grid-cols-3 gap-3 text-center">
                 <div className="rounded-xl border border-red-100 bg-red-50/60 p-3">
-                  <p className="font-display text-lg font-bold text-red-600">
-                    85%
-                  </p>
+                  <p className="font-display text-lg font-bold text-red-600">85%</p>
                   <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
                     Plafon Max
                   </p>
                 </div>
                 <div className="rounded-xl border border-amber-100 bg-amber-50/60 p-3">
-                  <p className="font-display text-lg font-bold text-amber-600">
-                    36 Bln
-                  </p>
+                  <p className="font-display text-lg font-bold text-amber-600">36 Bln</p>
                   <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
                     Tenor Cicilan
                   </p>
                 </div>
                 <div className="rounded-xl border border-emerald-100 bg-emerald-50/60 p-3">
-                  <p className="font-display text-lg font-bold text-emerald-600">
-                    1 Hari
-                  </p>
+                  <p className="font-display text-lg font-bold text-emerald-600">1 Hari</p>
                   <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
                     Proses Cair
                   </p>
@@ -671,36 +665,12 @@ export default function HomePage() {
 
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
             {[
-              {
-                name: "Honda Finance",
-                initial: "HF",
-                desc: "Official Honda",
-              },
-              {
-                name: "FIFGROUP",
-                initial: "FIF",
-                desc: "Astra Group",
-              },
-              {
-                name: "ADIRA",
-                initial: "ADR",
-                desc: "MNC Leasing",
-              },
-              {
-                name: "BFI Finance",
-                initial: "BFI",
-                desc: "Multi Finance",
-              },
-              {
-                name: "WOM Finance",
-                initial: "WOM",
-                desc: "Since 1982",
-              },
-              {
-                name: "SOFICO",
-                initial: "SFC",
-                desc: "OJK Registered",
-              },
+              { name: "Honda Finance", initial: "HF", desc: "Official Honda" },
+              { name: "FIFGROUP", initial: "FIF", desc: "Astra Group" },
+              { name: "ADIRA", initial: "ADR", desc: "MNC Leasing" },
+              { name: "BFI Finance", initial: "BFI", desc: "Multi Finance" },
+              { name: "WOM Finance", initial: "WOM", desc: "Since 1982" },
+              { name: "SOFICO", initial: "SFC", desc: "OJK Registered" },
             ].map((mitra) => (
               <div
                 key={mitra.name}
@@ -716,10 +686,7 @@ export default function HomePage() {
                   {mitra.desc}
                 </p>
                 <div className="mt-3 inline-flex items-center gap-1">
-                  <BadgeCheck
-                    className="h-3.5 w-3.5 text-sky-500"
-                    strokeWidth={2.5}
-                  />
+                  <BadgeCheck className="h-3.5 w-3.5 text-sky-500" strokeWidth={2.5} />
                   <span className="text-[10px] font-bold uppercase tracking-wider text-sky-600">
                     OJK
                   </span>
@@ -743,21 +710,9 @@ export default function HomePage() {
               </h3>
             </div>
             {[
-              {
-                icon: ShieldCheck,
-                title: "Terdaftar OJK",
-                desc: "Legal & berizin resmi",
-              },
-              {
-                icon: Award,
-                title: "Perlindungan Data",
-                desc: "Privasi terjamin aman",
-              },
-              {
-                icon: CheckCircle2,
-                title: "Kontrak Jelas",
-                desc: "Transparan tanpa biaya tersembunyi",
-              },
+              { icon: ShieldCheck, title: "Terdaftar OJK", desc: "Legal & berizin resmi" },
+              { icon: Award, title: "Perlindungan Data", desc: "Privasi terjamin aman" },
+              { icon: CheckCircle2, title: "Kontrak Jelas", desc: "Transparan tanpa biaya tersembunyi" },
             ].map(({ icon: Icon, title, desc }) => (
               <div
                 key={title}

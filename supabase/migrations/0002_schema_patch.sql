@@ -11,7 +11,7 @@ alter table public.profiles
   add column if not exists wilayah text null,
   add column if not exists kecamatan text null,
   add column if not exists kelurahan text null,
-  add column if not exists kode_pos text null,
+  add column if not aexists kode_pos text null,
   add column if not exists nama_jalan text null;
 
 -- Pastikan kolom lama tetap ada (default empty string utk backward compat)
