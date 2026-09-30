@@ -34,17 +34,29 @@ export async function getMotorcycleSimulation(
     .from("motorcycle_rates")
     .select("*")
     .eq("motorcycle_id", query.motorcycleId)
-    .eq("dp", query.dp)
-    .eq("tenor", query.tenor)
-    .eq("status", "active");
+    .eq("status", "active")
+    .or(`dp.eq.${query.dp},dp_amount.eq.${query.dp}`)
+    .or(`tenor.eq.${query.tenor},tenor_months.eq.${query.tenor}`);
 
   if (query.period) request = request.eq("period", query.period);
   if (query.area) request = request.eq("area", query.area);
 
-  const { data, error } = await request.maybeSingle();
+  const { data, error } = await request.limit(1).maybeSingle();
   if (error) throw error;
   if (!data) return unavailable();
-  return { available: true, rate: data as MotorcycleRate };
+
+  const raw = data as Record<string, unknown>;
+  const normalized: MotorcycleRate = {
+    ...(data as unknown as MotorcycleRate),
+    dp_amount: Number(raw.dp_amount ?? raw.dp ?? query.dp),
+    dp: Number(raw.dp ?? raw.dp_amount ?? query.dp),
+    tenor: Number(raw.tenor ?? raw.tenor_months ?? query.tenor),
+    tenor_months: Number(raw.tenor_months ?? raw.tenor ?? query.tenor),
+    installment: Number(raw.installment ?? raw.installment_amount ?? 0),
+    installment_amount: Number(raw.installment_amount ?? raw.installment ?? 0),
+    dp_cukup_bayar: Number(raw.dp_cukup_bayar ?? (raw.dp_amount ? Number(raw.dp_amount) * 1.12 : Number(raw.dp ?? 0) * 1.12)),
+  };
+  return { available: true, rate: normalized };
 }
 
 export async function getBpkbSimulation(

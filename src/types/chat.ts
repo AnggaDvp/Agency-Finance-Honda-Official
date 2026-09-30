@@ -1,17 +1,19 @@
-export type ConversationMode = "bot" | "admin" | "waiting_admin";
+export type ConversationMode = "bot" | "admin" | "waiting_admin" | "BOT_ACTIVE" | "ADMIN_ACTIVE";
 
-export type ConversationStatus = "open" | "closed";
+export type ConversationStatus = "open" | "closed" | "BOT_ACTIVE" | "ADMIN_ACTIVE";
 
 export type SenderType = "customer" | "bot" | "admin";
 
 export type Conversation = {
   id: string;
   customer_id: string | null;
+  application_id: string | null;
   assigned_admin_id: string | null;
   status: ConversationStatus;
   mode: ConversationMode;
   guest_name: string | null;
   guest_phone: string | null;
+  last_message_at: string | null;
   created_at: string;
   updated_at: string;
 };

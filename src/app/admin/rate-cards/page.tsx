@@ -8,15 +8,42 @@ import type { BpkbProduct, BpkbRate, MotorcycleRate } from "@/types/rate-card";
 import { useState } from "react";
 import { formatRupiah } from "@/lib/utils/format";
 
+function mkRate(
+  id: string,
+  motorcycle_id: string,
+  dp: number,
+  tenor: number,
+  installment: number,
+  otr_price: number,
+): MotorcycleRate {
+  return {
+    id,
+    motorcycle_id,
+    dp,
+    dp_amount: dp,
+    dp_cukup_bayar: Math.round(dp * 1.12),
+    tenor,
+    tenor_months: tenor,
+    installment,
+    installment_amount: installment,
+    otr_price,
+    period: "2025-2",
+    area: "Jabodetabek",
+    status: "active",
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  };
+}
+
 const MOTORCYCLE_RATES: MotorcycleRate[] = [
-  { id: "r-1", motorcycle_id: "m-01", dp: 2500000, tenor: 12, installment: 2150000, otr_price: 26500000, period: "2025-2", area: "Jabodetabek", status: "active", created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: "r-2", motorcycle_id: "m-01", dp: 2500000, tenor: 24, installment: 1125000, otr_price: 26500000, period: "2025-2", area: "Jabodetabek", status: "active", created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: "r-3", motorcycle_id: "m-01", dp: 2500000, tenor: 36, installment: 799000, otr_price: 26500000, period: "2025-2", area: "Jabodetabek", status: "active", created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: "r-4", motorcycle_id: "m-02", dp: 5000000, tenor: 12, installment: 3525000, otr_price: 44500000, period: "2025-2", area: "Jabodetabek", status: "active", created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: "r-5", motorcycle_id: "m-02", dp: 5000000, tenor: 24, installment: 1885000, otr_price: 44500000, period: "2025-2", area: "Jabodetabek", status: "active", created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: "r-6", motorcycle_id: "m-02", dp: 5000000, tenor: 36, installment: 1299000, otr_price: 44500000, period: "2025-2", area: "Jabodetabek", status: "active", created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: "r-7", motorcycle_id: "m-03", dp: 5000000, tenor: 36, installment: 1575000, otr_price: 53000000, period: "2025-2", area: "Jabodetabek", status: "active", created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: "r-8", motorcycle_id: "m-04", dp: 2000000, tenor: 36, installment: 649000, otr_price: 21500000, period: "2025-2", area: "Jabodetabek", status: "active", created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  mkRate("r-1", "m-01", 2500000, 12, 2150000, 26500000),
+  mkRate("r-2", "m-01", 2500000, 24, 1125000, 26500000),
+  mkRate("r-3", "m-01", 2500000, 36, 799000, 26500000),
+  mkRate("r-4", "m-02", 5000000, 12, 3525000, 44500000),
+  mkRate("r-5", "m-02", 5000000, 24, 1885000, 44500000),
+  mkRate("r-6", "m-02", 5000000, 36, 1299000, 44500000),
+  mkRate("r-7", "m-03", 5000000, 36, 1575000, 53000000),
+  mkRate("r-8", "m-04", 2000000, 36, 649000, 21500000),
 ];
 
 const BPKB_PRODUCTS: BpkbProduct[] = [

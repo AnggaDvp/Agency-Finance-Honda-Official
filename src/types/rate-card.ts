@@ -4,8 +4,12 @@ export type MotorcycleRate = {
   id: string;
   motorcycle_id: string;
   dp: number;
+  dp_amount?: number;
+  dp_cukup_bayar?: number;
   tenor: number;
+  tenor_months?: number;
   installment: number;
+  installment_amount?: number;
   otr_price: number;
   period: string;
   area: string;

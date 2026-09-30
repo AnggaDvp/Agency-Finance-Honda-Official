@@ -5,6 +5,11 @@ export type Profile = {
   user_id: string | null;
   full_name: string;
   phone: string;
+  wilayah?: string;
+  kecamatan?: string;
+  kelurahan?: string;
+  kode_pos?: string;
+  nama_jalan?: string;
   address: string;
   city: string;
   role: UserRole;

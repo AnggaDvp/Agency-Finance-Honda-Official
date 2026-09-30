@@ -1,4 +1,4 @@
-export type ApplicationType = "new_motorcycle" | "bpkb_financing";
+export type ApplicationType = "new_motorcycle" | "bpkb_financing" | "BPKB_FINANCING";
 
 export type ApplicationStatus =
   | "submitted"
@@ -7,7 +7,12 @@ export type ApplicationStatus =
   | "survey"
   | "processing"
   | "completed"
-  | "cancelled";
+  | "cancelled"
+  | "PENGAJUAN_TERKIRIM"
+  | "FOLLOW_UP"
+  | "PROSES"
+  | "SELESAI"
+  | "DIBATALKAN";
 
 export type FollowUpStatus = "pending" | "in_progress" | "done";
 
@@ -53,4 +58,11 @@ export const APPLICATION_TIMELINE: ApplicationStatus[] = [
   "survey",
   "processing",
   "completed",
+];
+
+export const APPLICATION_TIMELINE_BUSINESS: ApplicationStatus[] = [
+  "PENGAJUAN_TERKIRIM",
+  "FOLLOW_UP",
+  "PROSES",
+  "SELESAI",
 ];

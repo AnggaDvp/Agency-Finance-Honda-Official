@@ -15,6 +15,11 @@ export type Database = {
           user_id: string | null;
           full_name: string;
           phone: string;
+          wilayah: string | null;
+          kecamatan: string | null;
+          kelurahan: string | null;
+          kode_pos: string | null;
+          nama_jalan: string | null;
           address: string;
           city: string;
           role: "customer" | "admin" | "supervisor";
@@ -26,6 +31,11 @@ export type Database = {
           user_id?: string | null;
           full_name: string;
           phone: string;
+          wilayah?: string | null;
+          kecamatan?: string | null;
+          kelurahan?: string | null;
+          kode_pos?: string | null;
+          nama_jalan?: string | null;
           address?: string;
           city?: string;
           role?: "customer" | "admin" | "supervisor";
@@ -74,8 +84,12 @@ export type Database = {
           id: string;
           motorcycle_id: string;
           dp: number;
+          dp_amount: number | null;
+          dp_cukup_bayar: number | null;
           tenor: number;
+          tenor_months: number | null;
           installment: number;
+          installment_amount: number | null;
           otr_price: number;
           period: string;
           area: string;
@@ -86,9 +100,13 @@ export type Database = {
         Insert: {
           id?: string;
           motorcycle_id: string;
-          dp: number;
-          tenor: number;
-          installment: number;
+          dp?: number;
+          dp_amount?: number | null;
+          dp_cukup_bayar?: number | null;
+          tenor?: number;
+          tenor_months?: number | null;
+          installment?: number;
+          installment_amount?: number | null;
           otr_price: number;
           period?: string;
           area?: string;
@@ -155,7 +173,7 @@ export type Database = {
           id: string;
           application_code: string;
           customer_id: string;
-          application_type: "new_motorcycle" | "bpkb_financing";
+          application_type: "new_motorcycle" | "bpkb_financing" | "BPKB_FINANCING";
           motorcycle_id: string | null;
           bpkb_product_id: string | null;
           vehicle_type: string | null;
@@ -173,7 +191,12 @@ export type Database = {
             | "survey"
             | "processing"
             | "completed"
-            | "cancelled";
+            | "cancelled"
+            | "PENGAJUAN_TERKIRIM"
+            | "FOLLOW_UP"
+            | "PROSES"
+            | "SELESAI"
+            | "DIBATALKAN";
           survey_number: string | null;
           voucher_name: string | null;
           source: string;
@@ -186,7 +209,7 @@ export type Database = {
           id?: string;
           application_code?: string;
           customer_id: string;
-          application_type: "new_motorcycle" | "bpkb_financing";
+          application_type: "new_motorcycle" | "bpkb_financing" | "BPKB_FINANCING";
           motorcycle_id?: string | null;
           bpkb_product_id?: string | null;
           vehicle_type?: string | null;
@@ -204,7 +227,12 @@ export type Database = {
             | "survey"
             | "processing"
             | "completed"
-            | "cancelled";
+            | "cancelled"
+            | "PENGAJUAN_TERKIRIM"
+            | "FOLLOW_UP"
+            | "PROSES"
+            | "SELESAI"
+            | "DIBATALKAN";
           survey_number?: string | null;
           voucher_name?: string | null;
           source?: string;
@@ -219,22 +247,26 @@ export type Database = {
         Row: {
           id: string;
           customer_id: string | null;
+          application_id: string | null;
           assigned_admin_id: string | null;
-          status: "open" | "closed";
-          mode: "bot" | "admin" | "waiting_admin";
+          status: "open" | "closed" | "BOT_ACTIVE" | "ADMIN_ACTIVE";
+          mode: "bot" | "admin" | "waiting_admin" | "BOT_ACTIVE" | "ADMIN_ACTIVE";
           guest_name: string | null;
           guest_phone: string | null;
+          last_message_at: string | null;
           created_at: string;
           updated_at: string;
         };
         Insert: {
           id?: string;
           customer_id?: string | null;
+          application_id?: string | null;
           assigned_admin_id?: string | null;
-          status?: "open" | "closed";
-          mode?: "bot" | "admin" | "waiting_admin";
+          status?: "open" | "closed" | "BOT_ACTIVE" | "ADMIN_ACTIVE";
+          mode?: "bot" | "admin" | "waiting_admin" | "BOT_ACTIVE" | "ADMIN_ACTIVE";
           guest_name?: string | null;
           guest_phone?: string | null;
+          last_message_at?: string | null;
           created_at?: string;
           updated_at?: string;
         };

@@ -7,7 +7,14 @@ type Client = SupabaseClient<Database>;
 
 export async function getOrCreateConversation(
   client: Client,
-  options: { conversationId?: string; customerId?: string | null; guestName?: string },
+  options: {
+    conversationId?: string;
+    customerId?: string | null;
+    applicationId?: string | null;
+    guestName?: string;
+    guestPhone?: string;
+    initialMode?: ConversationMode;
+  },
 ) {
   if (options.conversationId) {
     const { data, error } = await client
@@ -19,11 +26,26 @@ export async function getOrCreateConversation(
     if (data) return data as Conversation;
   }
 
+  if (options.applicationId) {
+    const { data: existingByApp, error: errByApp } = await client
+      .from("conversations")
+      .select("*")
+      .eq("application_id", options.applicationId)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (!errByApp && existingByApp) return existingByApp as Conversation;
+  }
+
+  const mode: ConversationMode = options.initialMode ?? "bot";
   const convPayload = {
     customer_id: options.customerId ?? null,
+    application_id: options.applicationId ?? null,
     guest_name: options.guestName ?? "Pengunjung",
-    status: "open" as const,
-    mode: "bot" as const,
+    guest_phone: options.guestPhone ?? null,
+    status: "BOT_ACTIVE" as const,
+    mode,
+    last_message_at: new Date().toISOString(),
   };
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data, error } = await (client.from("conversations") as any).insert(convPayload).select("*").single();
@@ -61,14 +83,28 @@ export async function insertMessage(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data, error } = await (client.from("messages") as any).insert(msgPayload).select("*").single();
   if (error) throw error;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  await (client.from("conversations") as any)
+    .update({ last_message_at: new Date().toISOString() })
+    .eq("id", input.conversationId)
+    .catch(() => null);
+
   return data as ChatMessage;
 }
 
 export async function handleCustomerChat(
   client: Client,
-  input: { conversationId?: string; message: string; customerId?: string | null; guestName?: string },
+  input: {
+    conversationId?: string;
+    message: string;
+    customerId?: string | null;
+    guestName?: string;
+    applicationId?: string | null;
+  },
 ) {
   const conversation = await getOrCreateConversation(client, input);
+
   await insertMessage(client, {
     conversationId: conversation.id,
     senderType: "customer",
@@ -76,7 +112,8 @@ export async function handleCustomerChat(
     message: input.message,
   });
 
-  if (conversation.mode === "admin") {
+  const isAdminActive = conversation.mode === "admin" || conversation.mode === "ADMIN_ACTIVE" || conversation.status === "ADMIN_ACTIVE";
+  if (isAdminActive) {
     return { conversation, botReplied: false };
   }
 
@@ -84,7 +121,9 @@ export async function handleCustomerChat(
 
   if (result.escalate) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (client.from("conversations") as any).update({ mode: "waiting_admin" }).eq("id", conversation.id);
+    await (client.from("conversations") as any)
+      .update({ mode: "waiting_admin", status: "open" })
+      .eq("id", conversation.id);
   }
 
   await insertMessage(client, {
@@ -94,20 +133,30 @@ export async function handleCustomerChat(
     metadata: { intent: result.intent, escalate: result.escalate },
   });
 
-  return { conversation: { ...conversation, mode: result.escalate ? "waiting_admin" : conversation.mode }, botReplied: true };
+  const nextMode = result.escalate ? "waiting_admin" : conversation.mode;
+  return {
+    conversation: { ...conversation, mode: nextMode },
+    botReplied: true,
+  };
 }
 
 export async function takeOverConversation(client: Client, conversationId: string, adminId: string) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { error } = await (client.from("conversations") as any)
-    .update({ mode: "admin", assigned_admin_id: adminId })
+    .update({
+      mode: "ADMIN_ACTIVE",
+      status: "ADMIN_ACTIVE",
+      assigned_admin_id: adminId,
+    })
     .eq("id", conversationId);
   if (error) throw error;
 }
 
 export async function returnConversationToBot(client: Client, conversationId: string) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error } = await (client.from("conversations") as any).update({ mode: "bot" }).eq("id", conversationId);
+  const { error } = await (client.from("conversations") as any)
+    .update({ mode: "BOT_ACTIVE", status: "BOT_ACTIVE", assigned_admin_id: null })
+    .eq("id", conversationId);
   if (error) throw error;
 }
 
@@ -121,7 +170,12 @@ export async function listConversations(client: Client) {
 }
 
 export async function setConversationMode(client: Client, conversationId: string, mode: ConversationMode) {
+  const status = mode === "ADMIN_ACTIVE" || mode === "admin" ? "ADMIN_ACTIVE"
+    : mode === "BOT_ACTIVE" || mode === "bot" ? "BOT_ACTIVE"
+    : "open";
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error } = await (client.from("conversations") as any).update({ mode }).eq("id", conversationId);
+  const { error } = await (client.from("conversations") as any)
+    .update({ mode, status })
+    .eq("id", conversationId);
   if (error) throw error;
 }

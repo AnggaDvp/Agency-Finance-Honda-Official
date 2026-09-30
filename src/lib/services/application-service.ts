@@ -4,14 +4,91 @@ import type { Application, ApplicationWithCustomer } from "@/types/application";
 import type { BpkbApplicationInput, MotorcycleApplicationInput } from "@/lib/validations/application";
 import { findOrCreateCustomerByPhone } from "@/lib/services/customer-service";
 import { getMotorcycleSimulation } from "@/lib/services/simulation-service";
+import { getOrCreateConversation, insertMessage } from "@/lib/services/chat-service";
 
 type Client = SupabaseClient<Database>;
+
+const AI_ACKNOWLEDGEMENT =
+  "Halo Kak, pengajuan Anda sudah kami terima. Admin kami akan menghubungi Kakak untuk proses selanjutnya ya.";
+
+async function postApplicationCreated(client: Client, input: {
+  application: Application;
+  customerName: string;
+  customerPhone: string;
+}) {
+  try {
+    const conversation = await getOrCreateConversation(client, {
+      customerId: input.application.customer_id,
+      applicationId: input.application.id,
+      guestName: input.customerName,
+      guestPhone: input.customerPhone,
+    });
+
+    await insertMessage(client, {
+      conversationId: conversation.id,
+      senderType: "bot",
+      message: AI_ACKNOWLEDGEMENT,
+      metadata: {
+        system: true,
+        event: "APPLICATION_CREATED",
+        application_id: input.application.id,
+      },
+    });
+
+    try {
+      const scheduleDate = new Date();
+      scheduleDate.setMinutes(scheduleDate.getMinutes() + 30);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await (client.from("follow_ups") as any).insert({
+        application_id: input.application.id,
+        note: "Auto follow-up 30 menit setelah pengajuan terkirim",
+        follow_up_date: scheduleDate.toISOString(),
+        status: "pending",
+      }).catch(() => null);
+    } catch {
+      /* skip follow-up creation on error */
+    }
+
+    try {
+      const { data: staffList } = await client
+        .from("profiles")
+        .select("id")
+        .in("role", ["admin", "supervisor"])
+        .limit(5);
+      const staffs = (staffList ?? []) as Array<{ id: string }>;
+      const productLabel =
+        input.application.application_type === "bpkb_financing" ||
+        input.application.application_type === "BPKB_FINANCING"
+          ? "Dana Tunai BPKB"
+          : "Kredit Motor Baru";
+      for (const staff of staffs) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        await (client.from("notifications") as any).insert({
+          user_id: staff.id,
+          type: "NEW_APPLICATION",
+          title: "Pengajuan Baru Masuk",
+          message: `${input.customerName} mengajukan ${productLabel} (${input.application.application_code})`,
+          is_read: false,
+        }).catch(() => null);
+      }
+    } catch {
+      /* skip notification on error, application must not fail */
+    }
+  } catch {
+    /* FLOW 9 point 9: Continue normal customer experience even if WhatsApp/chat fails */
+  }
+}
 
 export async function createBpkbApplication(client: Client, input: BpkbApplicationInput) {
   const customer = await findOrCreateCustomerByPhone(client, {
     full_name: input.full_name,
     phone: input.phone,
     address: input.address,
+    wilayah: input.wilayah,
+    kecamatan: input.kecamatan,
+    kelurahan: input.kelurahan,
+    kode_pos: input.kode_pos,
+    nama_jalan: input.nama_jalan,
   });
 
   const insertPayload = {
@@ -24,12 +101,22 @@ export async function createBpkbApplication(client: Client, input: BpkbApplicati
     selected_tenor: input.selected_tenor,
     source: input.source ?? "website",
     status: "submitted" as const,
+    follow_up_status: "pending" as const,
+    is_demo: false,
   };
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data, error } = await (client.from("applications") as any).insert(insertPayload).select("*").single();
 
   if (error) throw error;
-  return data as Application;
+  const application = data as Application;
+
+  await postApplicationCreated(client, {
+    application,
+    customerName: customer.full_name,
+    customerPhone: customer.phone,
+  });
+
+  return application;
 }
 
 export async function createMotorcycleApplication(client: Client, input: MotorcycleApplicationInput) {
@@ -37,6 +124,11 @@ export async function createMotorcycleApplication(client: Client, input: Motorcy
     full_name: input.full_name,
     phone: input.phone,
     address: input.address,
+    wilayah: input.wilayah,
+    kecamatan: input.kecamatan,
+    kelurahan: input.kelurahan,
+    kode_pos: input.kode_pos,
+    nama_jalan: input.nama_jalan,
   });
 
   let estimated: number | null = null;
@@ -46,7 +138,8 @@ export async function createMotorcycleApplication(client: Client, input: Motorcy
       dp: input.selected_dp,
       tenor: input.selected_tenor,
     });
-    estimated = simulation.available ? simulation.rate.installment : null;
+    const rate = simulation.available ? simulation.rate : null;
+    estimated = rate ? (rate.installment_amount ?? rate.installment ?? null) : null;
   }
 
   const insertPayloadMotor = {
@@ -59,12 +152,22 @@ export async function createMotorcycleApplication(client: Client, input: Motorcy
     payment_method: input.payment_method,
     source: input.source ?? "website",
     status: "submitted" as const,
+    follow_up_status: "pending" as const,
+    is_demo: false,
   };
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data, error } = await (client.from("applications") as any).insert(insertPayloadMotor).select("*").single();
 
   if (error) throw error;
-  return data as Application;
+  const application = data as Application;
+
+  await postApplicationCreated(client, {
+    application,
+    customerName: customer.full_name,
+    customerPhone: customer.phone,
+  });
+
+  return application;
 }
 
 export async function listApplications(
