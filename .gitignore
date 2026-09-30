@@ -40,3 +40,7 @@ next-env.d.ts
 
 # trae ide
 .trae/
+
+# supabase cli local state
+supabase/.temp/
+supabase/.branches/
