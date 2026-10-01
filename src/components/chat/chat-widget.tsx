@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,6 +20,11 @@ const QUICK = [
   "Simulasi Angsuran",
   "Persyaratan BPKB",
 ];
+
+const BOT_AVATAR_SRC = "/images/chatbot-affiyah.png";
+const BOT_NAME = "Affiyah";
+const BOT_TITLE = "Customer Service NSC Finance";
+const BOT_AVATAR_ALT = "Affiyah - Customer Service NSC Finance";
 
 function ruleReply(msg: string): string {
   const m = msg.toLowerCase();
@@ -149,139 +155,194 @@ export function ChatWidget() {
   }, [open, messages.length]);
 
   return (
-    <div className="fixed bottom-6 right-6 z-40 flex flex-col items-end">
+    <div className="fixed bottom-6 right-6 z-40 flex flex-col items-end gap-3">
       {open ? (
-        <div className="mb-4 flex h-[560px] w-[380px] max-w-[94vw] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl flex-col-reverse">
-          <div className="flex h-full flex-col">
-            <div className="flex items-center justify-between border-b border-slate-800 bg-slate-900 p-4 text-white">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-600 text-white shadow-sm">
-                  <span className="material-symbols-outlined text-[22px]">
-                    support_agent
-                  </span>
+        <div className="mb-0 flex h-[560px] w-[380px] max-w-[94vw] flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl">
+          {/* HEADER CHAT DIBUKA */}
+          <div className="flex items-center justify-between gap-3 border-b border-red-100 bg-gradient-to-r from-slate-900 via-slate-900 to-slate-800 px-4 py-3 text-white">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="relative shrink-0">
+                <div className="relative h-12 w-12 rounded-full p-[2px] bg-gradient-to-br from-red-500 via-red-600 to-red-700 shadow-lg shadow-red-600/20">
+                  <div className="h-full w-full overflow-hidden rounded-full bg-white">
+                    <Image
+                      src={BOT_AVATAR_SRC}
+                      alt={BOT_AVATAR_ALT}
+                      width={44}
+                      height={44}
+                      unoptimized
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
                 </div>
-
-                <div>
-                  <p className="font-display text-base font-bold uppercase leading-none tracking-wide">
-                    Agency Honda Care
-                  </p>
-
-                  <p className="mt-1 flex items-center gap-1.5 text-[11px] font-semibold text-emerald-400">
-                    <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
-                    Online • Respon &lt; 5 menit
-                  </p>
-                </div>
+                <span className="absolute bottom-0 right-0 flex h-3.5 w-3.5 items-center justify-center">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+                  <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-slate-900" />
+                </span>
               </div>
-
-              <button
-                type="button"
-                onClick={() => setOpen(false)}
-                className="flex items-center gap-1 rounded-lg bg-slate-800 px-2 py-1 text-sm text-slate-200 transition-colors hover:bg-slate-700"
-                aria-label="Tutup chat"
-              >
-                <X className="h-4 w-4" />
-                Tutup
-              </button>
+              <div className="min-w-0">
+                <p className="font-display text-[15px] font-bold leading-none tracking-wide text-white">
+                  {BOT_NAME}
+                </p>
+                <p className="mt-1 truncate text-[11px] font-medium text-slate-300">
+                  {BOT_TITLE}
+                </p>
+                <p className="mt-1 flex items-center gap-1.5 text-[11px] font-semibold text-emerald-400">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                  Online
+                </p>
+              </div>
             </div>
 
-            <div className="flex-1 space-y-3 overflow-y-auto bg-slate-50 p-4">
-              {messages.map((msg) => (
+            <button
+              type="button"
+              onClick={() => setOpen(false)}
+              className="flex shrink-0 items-center gap-1 rounded-xl border border-white/10 bg-white/5 px-2.5 py-2 text-sm text-slate-200 transition-colors hover:bg-white/10 hover:text-white"
+              aria-label="Tutup chat"
+            >
+              <X className="h-4 w-4" />
+              <span className="hidden sm:inline text-xs font-semibold tracking-wide">
+                Tutup
+              </span>
+            </button>
+          </div>
+
+          {/* BODY CHAT (existing) */}
+          <div className="flex-1 space-y-3 overflow-y-auto bg-slate-50 p-4">
+            {messages.map((msg) => (
+              <div
+                key={msg.id}
+                className={
+                  msg.sender_type === "customer"
+                    ? "flex justify-end"
+                    : "flex items-end justify-start gap-2"
+                }
+              >
+                {msg.sender_type === "admin" ? (
+                  <div className="relative h-7 w-7 shrink-0 overflow-hidden rounded-full ring-2 ring-white shadow-sm">
+                    <Image
+                      src={BOT_AVATAR_SRC}
+                      alt={BOT_AVATAR_ALT}
+                      width={28}
+                      height={28}
+                      unoptimized
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+                ) : null}
                 <div
-                  key={msg.id}
                   className={
                     msg.sender_type === "customer"
-                      ? "flex justify-end"
-                      : "flex justify-start"
+                      ? "max-w-[82%] whitespace-pre-wrap rounded-2xl rounded-br-sm bg-gradient-to-br from-red-600 to-red-700 p-3 text-sm leading-relaxed text-white shadow-sm"
+                      : "max-w-[82%] whitespace-pre-wrap rounded-2xl rounded-bl-sm border border-slate-200 bg-white p-3 text-sm leading-relaxed text-slate-800 shadow-sm"
                   }
                 >
-                  <div
-                    className={
-                      msg.sender_type === "customer"
-                        ? "max-w-[86%] whitespace-pre-wrap rounded-2xl rounded-br-sm bg-red-600 p-3 text-sm leading-relaxed text-white shadow-sm"
-                        : "max-w-[86%] whitespace-pre-wrap rounded-2xl rounded-bl-sm border border-slate-200 bg-white p-3 text-sm leading-relaxed text-slate-800 shadow-sm"
-                    }
-                  >
-                    {msg.message}
-                  </div>
+                  {msg.message}
                 </div>
-              ))}
+              </div>
+            ))}
 
-              {loading ? (
-                <div className="flex justify-start">
-                  <div className="flex gap-1.5 rounded-2xl rounded-bl-sm border border-slate-200 bg-white p-3 shadow-sm">
-                    <span className="h-2 w-2 animate-bounce rounded-full bg-slate-400 [animation-delay:-0.3s]" />
-                    <span className="h-2 w-2 animate-bounce rounded-full bg-slate-400 [animation-delay:-0.15s]" />
-                    <span className="h-2 w-2 animate-bounce rounded-full bg-slate-400" />
-                  </div>
+            {loading ? (
+              <div className="flex items-end justify-start gap-2">
+                <div className="relative h-7 w-7 shrink-0 overflow-hidden rounded-full ring-2 ring-white shadow-sm">
+                  <Image
+                    src={BOT_AVATAR_SRC}
+                    alt={BOT_NAME}
+                    width={28}
+                    height={28}
+                    unoptimized
+                    className="h-full w-full object-cover"
+                  />
                 </div>
-              ) : null}
-            </div>
-
-            <div className="no-scrollbar flex gap-2 overflow-x-auto border-t border-slate-200 bg-slate-100 p-2.5">
-              {QUICK.map((item) => (
-                <button
-                  key={item}
-                  type="button"
-                  className="whitespace-nowrap rounded-full border border-slate-200 bg-white px-3.5 py-1.5 text-body-sm font-medium text-slate-700 shadow-sm transition-colors hover:border-red-400 hover:text-red-600"
-                  onClick={() => void send(item)}
-                >
-                  {item}
-                </button>
-              ))}
-            </div>
-
-            <form
-              className="flex gap-2 border-t border-slate-200 bg-white p-3"
-              onSubmit={(event) => {
-                event.preventDefault();
-
-                if (!text.trim()) return;
-
-                void send(text);
-                setText("");
-              }}
-            >
-              <Input
-                value={text}
-                onChange={(event) => setText(event.target.value)}
-                placeholder="Ketik pesan Anda disini..."
-                className="flex h-11"
-              />
-
-              <Button
-                type="submit"
-                disabled={loading || !text.trim()}
-                className="h-11 bg-red-600 px-4 font-semibold tracking-wide text-white hover:bg-red-700"
-              >
-                Kirim
-              </Button>
-            </form>
+                <div className="flex gap-1.5 rounded-2xl rounded-bl-sm border border-slate-200 bg-white p-3 shadow-sm">
+                  <span className="h-2 w-2 animate-bounce rounded-full bg-slate-400 [animation-delay:-0.3s]" />
+                  <span className="h-2 w-2 animate-bounce rounded-full bg-slate-400 [animation-delay:-0.15s]" />
+                  <span className="h-2 w-2 animate-bounce rounded-full bg-slate-400" />
+                </div>
+              </div>
+            ) : null}
           </div>
+
+          {/* QUICK REPLY & INPUT (existing) */}
+          <div className="no-scrollbar flex gap-2 overflow-x-auto border-t border-slate-200 bg-slate-100 p-2.5">
+            {QUICK.map((item) => (
+              <button
+                key={item}
+                type="button"
+                className="whitespace-nowrap rounded-full border border-slate-200 bg-white px-3.5 py-1.5 text-[12px] font-semibold text-slate-700 shadow-sm transition-colors hover:border-red-400 hover:text-red-600 hover:bg-red-50"
+                onClick={() => void send(item)}
+              >
+                {item}
+              </button>
+            ))}
+          </div>
+
+          <form
+            className="flex gap-2 border-t border-slate-200 bg-white p-3"
+            onSubmit={(event) => {
+              event.preventDefault();
+
+              if (!text.trim()) return;
+
+              void send(text);
+              setText("");
+            }}
+          >
+            <Input
+              value={text}
+              onChange={(event) => setText(event.target.value)}
+              placeholder="Ketik pesan Anda disini..."
+              className="flex h-11 rounded-xl border-slate-300 focus:border-red-500 focus:ring-red-500/20"
+            />
+
+            <Button
+              type="submit"
+              disabled={loading || !text.trim()}
+              className="h-11 rounded-xl bg-gradient-to-br from-red-600 to-red-700 px-5 font-bold uppercase tracking-wider text-white shadow-lg shadow-red-600/20 hover:from-red-700 hover:to-red-800"
+            >
+              Kirim
+            </Button>
+          </form>
         </div>
       ) : null}
 
+      {/* FLOATING BUTTON — CHAT DITUTUP */}
       <button
+        id="nsc-chat-widget-trigger"
+        data-chat-trigger="true"
         type="button"
-        onClick={() => setOpen((value) => !value)}
-        className="group flex items-center gap-3 rounded-full border border-slate-200 bg-white px-5 py-3 shadow-xl transition-all hover:border-red-400"
+        onClick={() => setOpen(true)}
+        className="group flex items-center gap-3 rounded-full border border-red-100 bg-white pl-2 pr-5 py-2 shadow-2xl shadow-slate-900/10 transition-all hover:shadow-red-500/20 hover:scale-[1.02]"
+        aria-label="Buka chat dengan Affiyah, Customer Service NSC Finance"
       >
-        <span className="relative flex h-3.5 w-3.5">
-          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-          <span className="relative inline-flex h-3.5 w-3.5 rounded-full bg-emerald-500" />
-        </span>
-
-        <span className="text-left">
-          <span className="block text-[13px] font-bold text-slate-900 transition-colors group-hover:text-red-600">
-            CS Agency Honda
+        {/* Avatar utama lingkaran */}
+        <div className="relative shrink-0">
+          <div className="relative h-14 w-14 rounded-full p-[3px] bg-gradient-to-br from-red-500 via-red-600 to-red-700 shadow-xl shadow-red-600/30">
+            <div className="h-full w-full overflow-hidden rounded-full bg-white">
+              <Image
+                src={BOT_AVATAR_SRC}
+                alt={BOT_AVATAR_ALT}
+                width={50}
+                height={50}
+                unoptimized
+                className="h-full w-full object-cover"
+              />
+            </div>
+          </div>
+          {/* Indikator online */}
+          <span className="absolute bottom-0 right-0 flex h-4 w-4 items-center justify-center">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+            <span className="relative inline-flex h-3 w-3 rounded-full bg-emerald-500 ring-2 ring-white" />
           </span>
+        </div>
 
-          <span className="text-[11px] font-medium text-emerald-600">
-            Siap membantu 24/7
+        {/* Label nama & jabatan */}
+        <span className="flex flex-col items-start text-left">
+          <span className="block text-[14px] font-black uppercase tracking-wide text-slate-900 transition-colors group-hover:text-red-600">
+            {BOT_NAME}
           </span>
-        </span>
-
-        <span className="material-symbols-outlined text-[20px] text-red-600 transition-transform group-hover:rotate-12">
-          chat_bubble
+          <span className="block text-[11px] font-semibold leading-tight text-slate-500 group-hover:text-slate-700">
+            {BOT_TITLE}
+          </span>
         </span>
       </button>
     </div>
