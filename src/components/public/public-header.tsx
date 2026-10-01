@@ -16,59 +16,56 @@ import {
 import { useState } from "react";
 import { cn } from "@/lib/utils/cn";
 
-const NAV = [
-  { href: "/", label: "Beranda" },
-  {
-    href: "/motor",
-    label: "Motor",
-    children: [
-      {
-        href: "/motor",
-        label: "Katalog Motor Baru",
-        desc: "Lihat semua unit Honda ready stock",
-      },
-      {
-        href: "/pengajuan",
-        label: "Pengajuan Kredit Motor",
-        desc: "Isi formulir online & respon cepat",
-      },
-      {
-        href: "/simulasi",
-        label: "Simulasi Angsuran",
-        desc: "Hitung cicilan DP & tenor pilihan",
-      },
-      {
-        href: "https://www.astra-honda.com/product/vario-evo-160",
-        label: "Honda Vario EVO 160",
-        desc: "Produk terlaris bulan ini",
-        external: true,
-      },
-    ],
-  },
-  {
-    href: "/bpkb",
-    label: "Dana Tunai",
-    children: [
-      {
-        href: "/bpkb",
-        label: "Gadai BPKB Motor",
-        desc: "Dana cair sampai 85% nilai motor",
-      },
-      {
-        href: "/pengajuan",
-        label: "Ajukan Online Sekarang",
-        desc: "Proses cepat 24 jam cair",
-      },
-    ],
-  },
+type NavChildItem = {
+  href: string;
+  label: string;
+  external?: boolean;
+  desc?: string;
+};
+
+type NavItem = {
+  href: string;
+  label: string;
+  onClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void;
+  children?: NavChildItem[];
+};
+
+// Nav customer HANYA MUNCUL JIKA SUDAH TERIDENTIFIKASI (isCustomerIdentified = TRUE).
+// Sebelumnya NAV lama disembunyikan seluruhnya (sesuai aturan bisnis nomor 7 & 8).
+const NAV_CUSTOMER_AFTER_IDENTIFIED: readonly NavItem[] = [
+  { href: "/bpkb", label: "Dana Tunai" },
+  { href: "/motor", label: "Kredit Motor" },
   { href: "/simulasi", label: "Simulasi" },
   { href: "/faq", label: "Tentang Kami" },
+  {
+    href: "#chat-widget",
+    label: "Chat",
+    onClick: (e: React.MouseEvent<HTMLAnchorElement>) => {
+      e.preventDefault();
+      const chat = document.getElementById("nsc-chat-widget-trigger");
+      if (chat) chat.click();
+      else {
+        const trigger = document.querySelector('[data-chat-trigger="true"]');
+        if (trigger instanceof HTMLElement) trigger.click();
+      }
+    },
+  },
 ];
 
-export function PublicHeader() {
+export function PublicHeader({
+  isCustomerIdentified = false,
+  customerName = null,
+}: {
+  isCustomerIdentified?: boolean;
+  customerName?: string | null;
+}) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [motorOpen, setMotorOpen] = useState(false);
+
+  const NAV: readonly NavItem[] = isCustomerIdentified
+    ? NAV_CUSTOMER_AFTER_IDENTIFIED
+    : [];
 
   return (
     <header className="fixed inset-x-0 top-0 z-50">
@@ -129,64 +126,19 @@ export function PublicHeader() {
               const active =
                 item.href === "/"
                   ? pathname === "/"
-                  : pathname.startsWith(item.href);
-              if (item.children) {
-                return (
-                  <div key={item.label} className="relative group">
-                    <button
-                      type="button"
-                      className={cn(
-                        "flex items-center gap-1 rounded-lg px-3.5 py-2 text-[13px] font-semibold text-slate-700 transition-all hover:text-red-600 hover:bg-white/60",
-                        active &&
-                          "bg-white text-slate-900 shadow-sm ring-1 ring-slate-200",
-                      )}
-                    >
-                      {item.label}
-                      <ChevronDown className="h-4 w-4 transition-transform duration-300 group-hover:rotate-180" />
-                    </button>
-                    <div className="invisible absolute left-0 top-full z-50 mt-2 flex w-72 flex-col gap-1 rounded-2xl border border-slate-200 bg-white p-2 opacity-0 shadow-2xl ring-1 ring-black/5 transition-all duration-200 group-hover:visible group-hover:opacity-100 group-hover:translate-y-0 translate-y-1">
-                      {item.children.map((child) => (
-                        <Link
-                          key={child.href + child.label}
-                          href={child.href}
-                          target={child.external ? "_blank" : undefined}
-                          rel={child.external ? "noopener noreferrer" : undefined}
-                          className="group/item rounded-xl px-3 py-2.5 text-sm transition-all hover:bg-gradient-to-r hover:from-red-50 hover:to-transparent"
-                        >
-                          <div className="flex items-center gap-2">
-                            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-500 group-hover/item:bg-red-600 group-hover/item:text-white transition-colors">
-                              <ChevronDown className="h-4 w-4 -rotate-90" />
-                            </span>
-                            <span>
-                              <span className="block font-semibold text-slate-800 group-hover/item:text-red-700">
-                                {child.label}
-                                {child.external && (
-                                  <span className="ml-1.5 text-[10px] font-bold uppercase text-red-600">
-                                    ↗
-                                  </span>
-                                )}
-                              </span>
-                              {"desc" in child && child.desc && (
-                                <span className="block text-xs text-slate-500">
-                                  {child.desc}
-                                </span>
-                              )}
-                            </span>
-                          </div>
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-                );
-              }
+                  : !item.href.startsWith("#") && pathname.startsWith(item.href);
               return (
                 <Link
-                  key={item.href}
+                  key={item.href + item.label}
                   href={item.href}
+                  onClick={
+                    "onClick" in item
+                      ? (item as { onClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void }).onClick
+                      : undefined
+                  }
                   className={cn(
                     "rounded-lg px-3.5 py-2 text-[13px] font-semibold text-slate-700 transition-all hover:text-red-600 hover:bg-white/60",
-                    active &&
-                      "bg-white text-slate-900 shadow-sm ring-1 ring-slate-200",
+                    active && "bg-white text-slate-900 shadow-sm ring-1 ring-slate-200",
                   )}
                 >
                   {item.label}

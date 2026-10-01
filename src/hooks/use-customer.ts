@@ -1,30 +1,56 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createClient } from "@/lib/supabase/client";
-import type { Profile } from "@/types/customer";
+
+export type CustomerSession = {
+  id: string;
+  name: string;
+  phone: string;
+  wilayah: string | null;
+  kecamatan: string | null;
+  kelurahan: string | null;
+  kodePos: string | null;
+  namaJalan: string | null;
+};
+
+type SessionResponse =
+  | { authenticated: true; customer: CustomerSession }
+  | { authenticated: false };
 
 export function useCustomer() {
-  const [profile, setProfile] = useState<Profile | null>(null);
+  const [customer, setCustomer] = useState<CustomerSession | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const supabase = createClient();
+    const controller = new AbortController();
     const run = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) {
-        setProfile(null);
+      try {
+        const res = await fetch("/api/customer/session", {
+          method: "GET",
+          credentials: "include",
+          signal: controller.signal,
+        });
+        if (!res.ok) {
+          setCustomer(null);
+          setLoading(false);
+          return;
+        }
+        const data = (await res.json()) as SessionResponse;
+        if (data.authenticated) {
+          setCustomer(data.customer);
+        } else {
+          setCustomer(null);
+        }
+      } catch (err) {
+        if (err instanceof DOMException && err.name === "AbortError") return;
+        setCustomer(null);
+      } finally {
         setLoading(false);
-        return;
       }
-      const { data } = await supabase.from("profiles").select("*").eq("user_id", user.id).maybeSingle();
-      setProfile((data as Profile | null) ?? null);
-      setLoading(false);
     };
     void run();
+    return () => controller.abort();
   }, []);
 
-  return { profile, loading };
+  return { customer, loading };
 }
