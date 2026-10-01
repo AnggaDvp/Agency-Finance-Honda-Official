@@ -1,0 +1,398 @@
+// =============================================================================
+// NSC Finance Honda — Prisma 7 Schema Foundation (RELASI DI-PERBAIKI v2)
+//
+// REFERENSI BISNIS : supabase/migrations/0003_full_init.sql
+// GENERATOR       : prisma-client (Prisma 7 — BUKAN prisma-client-js)
+// OUTPUT          : ../src/generated/prisma
+// DATASOURCE      : MySQL — url via prisma7.config.ts → env("DATABASE_URL")
+//
+// ATURAN UTAMA:
+// - 1 nomor telepon ⟷ 1 Customer (phone @unique)
+// - 1 Customer ⟷ N Application
+// - Semua nilai uang pakai @Decimal (JANGAN Float)
+// - Tidak ada field RO/NIO/NEW pada flow customer-facing
+// =============================================================================
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+// =============================================================================
+// 8 ENUM — Status / Type agar schema tetap konsisten
+// =============================================================================
+
+enum ApplicationType {
+  DANA_TUNAI
+  KREDIT_MOTOR
+}
+
+enum ApplicationStatus {
+  PENGAJUAN_TERKIRIM
+  FOLLOW_UP
+  PROSES
+  SELESAI
+  DIBATALKAN
+}
+
+enum TaxStatus {
+  HIDUP
+  MATI
+}
+
+enum ConversationStatus {
+  BOT_ACTIVE
+  ADMIN_ACTIVE
+  CLOSED
+}
+
+enum SenderType {
+  CUSTOMER
+  AI
+  ADMIN
+  SYSTEM
+}
+
+enum FollowUpStatus {
+  PENDING
+  IN_PROGRESS
+  DONE
+}
+
+enum NotificationChannel {
+  WHATSAPP
+  EMAIL
+  IN_APP
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  FAILED
+}
+
+// =============================================================================
+// 1. CUSTOMER — Primary Identity = phone (UNIQUE)
+//    Customer website TIDAK pakai password / auth.user_id Supabase.
+//    5 field alamat = wilayah, kecamatan, kelurahan, kodePos, namaJalan (nullable)
+// =============================================================================
+
+model Customer {
+  id         String   @id @default(uuid()) @db.Char(36)
+  name       String   @db.VarChar(255)
+  phone      String   @unique @db.VarChar(20)
+
+  wilayah    String?  @db.VarChar(255)
+  kecamatan  String?  @db.VarChar(255)
+  kelurahan  String?  @db.VarChar(255)
+  kodePos    String?  @map("kode_pos") @db.VarChar(10)
+  namaJalan  String?  @map("nama_jalan") @db.Text
+
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt      @map("updated_at")
+
+  // ✅ FIX: Named relation ditambahkan di SEMUA array parent (sesuai aturan 1 & 2)
+  applications   Application[]   @relation("CustomerApplications")
+  conversations  Conversation[]  @relation("CustomerConversations")
+  notifications  Notification[]  @relation("CustomerNotifications")
+
+  @@map("customers")
+}
+
+// =============================================================================
+// 2. APPLICATION — applicationCode UNIQUE (untuk keperluan tracking)
+//    Status default = PENGAJUAN_TERKIRIM (sesuai spesifikasi)
+// =============================================================================
+
+model Application {
+  id              String             @id @default(uuid()) @db.Char(36)
+  applicationCode String             @unique @map("application_code") @db.VarChar(50)
+  customerId      String             @map("customer_id") @db.Char(36)
+  type            ApplicationType
+  status          ApplicationStatus  @default(PENGAJUAN_TERKIRIM)
+  createdAt       DateTime           @default(now()) @map("created_at")
+  updatedAt       DateTime           @updatedAt    @map("updated_at")
+
+  // ✅ FIX: Ditambahkan map: "fk_applications_customer_id" (sesuai aturan 4)
+  customer Customer @relation("CustomerApplications", fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_applications_customer_id")
+
+  // ✅ FIX: Named relation ditambahkan di array 1:1 dan 1:N
+  danaTunaiDetail   DanaTunaiDetail?            @relation("ApplicationDanaTunai")
+  kreditMotorDetail KreditMotorDetail?          @relation("ApplicationKreditMotor")
+  statusHistory     ApplicationStatusHistory[]  @relation("ApplicationStatusHistory")
+  conversations     Conversation[]              @relation("ApplicationConversations")
+  followUps         FollowUp[]                  @relation("ApplicationFollowUps")
+  notifications     Notification[]              @relation("ApplicationNotifications")
+
+  @@index([customerId])
+  @@index([type])
+  @@index([status])
+  @@map("applications")
+}
+
+// =============================================================================
+// 2b. APPLICATION STATUS HISTORY — Audit trail perubahan status
+// =============================================================================
+
+model ApplicationStatusHistory {
+  id            String            @id @default(uuid()) @db.Char(36)
+  applicationId String            @map("application_id") @db.Char(36)
+  status        ApplicationStatus
+  note          String?           @db.Text
+  createdAt     DateTime          @default(now()) @map("created_at")
+
+  // ✅ FIX: Ditambahkan map: "fk_status_history_application_id"
+  application Application @relation("ApplicationStatusHistory", fields: [applicationId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_status_history_application_id")
+
+  @@index([applicationId])
+  @@map("application_status_history")
+}
+
+// =============================================================================
+// 3. DANA TUNAI DETAIL — ❌ TIDAK ADA: plat, RO, NIO, NEW
+//    applicationId UNIQUE → relasi 1:1 dengan Application
+// =============================================================================
+
+model DanaTunaiDetail {
+  id              String     @id @default(uuid()) @db.Char(36)
+  applicationId   String     @unique @map("application_id") @db.Char(36)
+  motorcycleBrand String     @map("motorcycle_brand") @db.VarChar(100)
+  motorcycleYear  Int        @map("motorcycle_year")
+  taxStatus       TaxStatus  @map("tax_status")
+
+  // ✅ FIX: Ditambahkan map: "fk_dana_tunai_application_id"
+  application Application @relation("ApplicationDanaTunai", fields: [applicationId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_dana_tunai_application_id")
+
+  @@map("dana_tunai_details")
+}
+
+// =============================================================================
+// 4. KREDIT MOTOR DETAIL — applicationId UNIQUE → 1:1
+// =============================================================================
+
+model KreditMotorDetail {
+  id            String  @id @default(uuid()) @db.Char(36)
+  applicationId String  @unique @map("application_id") @db.Char(36)
+  motorcycleId  String  @map("motorcycle_id") @db.Char(36)
+  applicantName String  @map("applicant_name") @db.VarChar(255)
+
+  // ✅ FIX: Ditambahkan 2 map: "fk_kredit_motor_application_id" + "fk_kredit_motor_motorcycle_id"
+  application Application @relation("ApplicationKreditMotor", fields: [applicationId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_kredit_motor_application_id")
+  motorcycle  Motorcycle  @relation("MotorcycleKreditApplications", fields: [motorcycleId], references: [id], onDelete: Restrict, onUpdate: Cascade, map: "fk_kredit_motor_motorcycle_id")
+
+  @@index([motorcycleId])
+  @@map("kredit_motor_details")
+}
+
+// =============================================================================
+// 5. MOTORCYCLE — Katalog motor (mirip tabel motorcycles Supabase lama)
+//    slug UNIQUE untuk URL katalog. otrPrice Decimal 14,2
+// =============================================================================
+
+model Motorcycle {
+  id          String    @id @default(uuid()) @db.Char(36)
+  brand       String    @db.VarChar(100)
+  name        String    @map("model") @db.VarChar(255)
+  variant     String?   @db.VarChar(255)
+  category    String?   @db.VarChar(50)
+  year        Int
+  otrPrice    Decimal?  @map("otr_price") @db.Decimal(14, 2)
+  description String?   @db.Text
+  imageUrl    String?   @map("image_url") @db.VarChar(500)
+  stock       Int?
+  status      String    @default("active") @db.VarChar(20)
+  slug        String    @unique @db.VarChar(255)
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt    @map("updated_at")
+
+  // ✅ FIX: Named relation sudah ada di rates. Ditambahkan named relation @relation("MotorcycleRates") di motorcycleRates
+  rates                KreditMotorDetail[] @relation("MotorcycleKreditApplications")
+  motorcycleRates      MotorcycleRate[]    @relation("MotorcycleRates")
+
+  @@index([brand])
+  @@index([status])
+  @@index([category])
+  @@map("motorcycles")
+}
+
+// =============================================================================
+// 6. MOTORCYCLE RATE — Rate simulasi kredit motor. ❌ JANGAN hardcode di FE.
+//    dpAmount & tenorMonths nullable untuk backward compat dp & tenor.
+//    Semua nilai uang = @Decimal
+// =============================================================================
+
+model MotorcycleRate {
+  id            String   @id @default(uuid()) @db.Char(36)
+  motorcycleId  String   @map("motorcycle_id") @db.Char(36)
+  dp            Decimal  @db.Decimal(14, 2)
+  dpAmount      Decimal? @map("dp_amount") @db.Decimal(14, 2)
+  tenor         Int
+  tenorMonths   Int?     @map("tenor_months")
+  installment   Decimal  @db.Decimal(14, 2)
+  interestRate  Decimal? @map("interest_rate") @db.Decimal(5, 2)
+  otrPrice      Decimal  @map("otr_price") @db.Decimal(14, 2)
+  period        String   @db.VarChar(20)
+  area          String   @default("Nasional") @db.VarChar(100)
+  status        String   @default("active") @db.VarChar(20)
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt    @map("updated_at")
+
+  // ✅ FIX: Ditambahkan map: "fk_motorcycle_rates_motorcycle_id"
+  motorcycle Motorcycle @relation("MotorcycleRates", fields: [motorcycleId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_motorcycle_rates_motorcycle_id")
+
+  @@unique([motorcycleId, dp, tenor, period, area])
+  @@index([motorcycleId])
+  @@index([status])
+  @@map("motorcycle_rates")
+}
+
+// =============================================================================
+// 7. BPKB PRODUCT — Master produk DANA TUNAI (contoh: Reguler, Flash)
+//    vehicleBrands: JSON → ["Honda","Yamaha","Kawasaki","Suzuki"]
+// =============================================================================
+
+model BpkbProduct {
+  id              String   @id @default(uuid()) @db.Char(36)
+  name            String   @db.VarChar(255)
+  description     String?  @db.Text
+  vehicleBrands   Json?    @map("vehicle_brands")
+  maxVehicleAge   Int      @map("max_vehicle_age") @default(10)
+  status          String   @default("active") @db.VarChar(20)
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt    @map("updated_at")
+
+  // ✅ FIX: Ditambahkan named relation @relation("BpkbProductRates")
+  rates BpkbRate[]  @relation("BpkbProductRates")
+
+  @@map("bpkb_products")
+}
+
+// =============================================================================
+// 8. BPKB RATE — Skema cicilan DANA TUNAI per product
+//    disbursementAmount, installment = Decimal
+// =============================================================================
+
+model BpkbRate {
+  id                 String   @id @default(uuid()) @db.Char(36)
+  productId          String   @map("product_id") @db.Char(36)
+  scheme             String   @db.VarChar(50)
+  disbursementAmount Decimal  @map("disbursement_amount") @db.Decimal(14, 2)
+  tenor              Int
+  installment        Decimal  @db.Decimal(14, 2)
+  period             String   @db.VarChar(20)
+  area               String   @default("Nasional") @db.VarChar(100)
+  status             String   @default("active") @db.VarChar(20)
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt    @map("updated_at")
+
+  // ✅ FIX: Ditambahkan map: "fk_bpkb_rates_product_id"
+  product BpkbProduct @relation("BpkbProductRates", fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_bpkb_rates_product_id")
+
+  @@unique([productId, scheme, disbursementAmount, tenor, period, area])
+  @@index([productId])
+  @@index([status])
+  @@map("bpkb_rates")
+}
+
+// =============================================================================
+// 9. CONVERSATION — Chat. lastMessageAt nullable.
+//    Status: BOT_ACTIVE / ADMIN_ACTIVE / CLOSED
+//    applicationId nullable → 1 Application bisa punya N Conversation.
+// =============================================================================
+
+model Conversation {
+  id            String              @id @default(uuid()) @db.Char(36)
+  customerId    String              @map("customer_id") @db.Char(36)
+  applicationId String?             @map("application_id") @db.Char(36)
+  status        ConversationStatus
+  channel       String              @default("WEBSITE") @db.VarChar(50)
+  lastMessageAt DateTime?           @map("last_message_at")
+  createdAt     DateTime            @default(now()) @map("created_at")
+  updatedAt     DateTime            @updatedAt    @map("updated_at")
+
+  // ✅ FIX: Ditambahkan 2 map FK: "fk_conversations_customer_id" + "fk_conversations_application_id"
+  customer    Customer    @relation("CustomerConversations", fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_conversations_customer_id")
+  application Application? @relation("ApplicationConversations", fields: [applicationId], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "fk_conversations_application_id")
+  // ✅ FIX: Ditambahkan named relation messages: "ConversationMessages"
+  messages    Message[]   @relation("ConversationMessages")
+
+  @@index([customerId])
+  @@index([applicationId])
+  @@index([status])
+  @@map("conversations")
+}
+
+// =============================================================================
+// 10. MESSAGE — Riwayat pesan conversation. metadata Json nullable.
+// =============================================================================
+
+model Message {
+  id             String      @id @default(uuid()) @db.Char(36)
+  conversationId String      @map("conversation_id") @db.Char(36)
+  senderType     SenderType  @map("sender_type")
+  message        String      @db.Text
+  metadata       Json?
+  createdAt      DateTime    @default(now()) @map("created_at")
+
+  // ✅ FIX: Ditambahkan map: "fk_messages_conversation_id"
+  conversation Conversation @relation("ConversationMessages", fields: [conversationId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_messages_conversation_id")
+
+  @@index([conversationId])
+  @@map("messages")
+}
+
+// =============================================================================
+// 11. FOLLOW UP — Jadwal auto follow up (post pengajuan)
+// =============================================================================
+
+model FollowUp {
+  id            String           @id @default(uuid()) @db.Char(36)
+  applicationId String           @map("application_id") @db.Char(36)
+  scheduledAt   DateTime         @map("scheduled_at")
+  status        FollowUpStatus
+  notes         String           @db.Text
+  result        String?          @db.Text
+  createdAt     DateTime         @default(now()) @map("created_at")
+  updatedAt     DateTime         @updatedAt    @map("updated_at")
+
+  // ✅ FIX: Ditambahkan map: "fk_followups_application_id"
+  application Application @relation("ApplicationFollowUps", fields: [applicationId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_followups_application_id")
+
+  @@index([applicationId])
+  @@index([status])
+  @@index([scheduledAt])
+  @@map("follow_ups")
+}
+
+// =============================================================================
+// 12. NOTIFICATION — WHATSAPP / EMAIL / IN_APP outbox
+//     Status WA gagal TIDAK BATALKAN pengajuan (lihat application-service nanti)
+//     ✅ FIX: Ditambahkan customerId + customer relation (hilang sebelumnya!)
+// =============================================================================
+
+model Notification {
+  id            String                @id @default(uuid()) @db.Char(36)
+  customerId    String?               @map("customer_id") @db.Char(36)    // ✅ BARU — FK ke Customer (nullable)
+  applicationId String?               @map("application_id") @db.Char(36)
+  channel       NotificationChannel
+  recipient     String                @db.VarChar(255)
+  status        NotificationStatus
+  errorMessage  String?               @map("error_message") @db.Text
+  payload       Json?
+  createdAt     DateTime              @default(now()) @map("created_at")
+
+  // ✅ FIX: Customer relation "CustomerNotifications" + map: "fk_notifications_customer_id"
+  customer      Customer?              @relation("CustomerNotifications", fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_notifications_customer_id")
+  // ✅ FIX: Application relation map: "fk_notifications_application_id"
+  application   Application?           @relation("ApplicationNotifications", fields: [applicationId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_notifications_application_id")
+
+  @@index([customerId])    // ✅ BARU — Index untuk customer lookup
+  @@index([applicationId])
+  @@index([channel])
+  @@index([status])
+  @@map("notifications")
+}

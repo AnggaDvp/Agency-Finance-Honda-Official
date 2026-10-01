@@ -1,5 +1,5 @@
 import type { ApplicationStatus } from "@/types/application";
-import { APPLICATION_TIMELINE, APPLICATION_TIMELINE_BUSINESS } from "@/types/application";
+import { APPLICATION_TIMELINE } from "@/types/application";
 import { cn } from "@/lib/utils/cn";
 
 const LABELS: Record<ApplicationStatus, string> = {

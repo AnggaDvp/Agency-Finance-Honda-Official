@@ -21,6 +21,7 @@ import {
   BadgeCheck,
 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 const HERO_MOTOR_IMAGE =
   "https://coresg-normal.trae.ai/api/ide/v1/text_to_image?prompt=Honda%20Vario%20160%20motorcycle%20sporty%20red%20white%20color%20studio%20shot%20high%20quality%20automotive%20photography%20dynamic%20angle%20luxury%20lighting&image_size=landscape_16_9";
@@ -346,10 +347,13 @@ export default async function HomePage() {
                 <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-100 to-slate-50 p-8">
                   <div className="absolute -top-8 -right-8 rounded-full bg-red-500/10 h-40 w-40 blur-2xl"></div>
                   <div className="absolute -bottom-12 -left-8 rounded-full bg-amber-400/20 h-48 w-48 blur-3xl"></div>
-                  <img
+                  <Image
                     src={HERO_MOTOR_IMAGE}
                     alt="Honda Vario EVO 160 - Promo Terbaru"
                     className="relative mx-auto w-full max-w-xl object-contain drop-shadow-2xl"
+                    width={800}
+                    height={450}
+                    unoptimized
                   />
                 </div>
                 <div className="mt-5 flex items-center justify-between gap-4">
@@ -401,10 +405,13 @@ export default async function HomePage() {
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           <div className="group relative flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all hover:border-red-300 hover:shadow-xl">
             <div className="relative aspect-[16/10] w-full overflow-hidden bg-gradient-to-br from-red-50 via-white to-slate-50">
-              <img
+              <Image
                 src="https://coresg-normal.trae.ai/api/ide/v1/text_to_image?prompt=Honda%20Vario%20160%20PCX%20ADV%20Beat%20row%20of%20new%20motorcycles%20red%20white%20black%20color%20dealership%20showroom%20display%20professional%20automotive%20photography&image_size=landscape_16_9"
                 alt="Katalog Motor Honda Baru"
                 className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                width={1600}
+                height={1000}
+                unoptimized
               />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/20 to-transparent"></div>
               <div className="absolute left-6 top-6 inline-flex items-center gap-1.5 rounded-full border border-red-200 bg-white/90 px-3 py-1 shadow-sm backdrop-blur">
@@ -471,10 +478,13 @@ export default async function HomePage() {
           <div className="group relative flex flex-col overflow-hidden rounded-2xl border border-red-200 bg-white shadow-sm transition-all hover:border-red-400 hover:shadow-xl">
             <div className="absolute left-0 right-0 top-0 h-1.5 bg-gradient-to-r from-red-600 via-amber-400 to-red-500"></div>
             <div className="relative aspect-[16/10] w-full overflow-hidden bg-gradient-to-br from-amber-50 via-orange-50 to-red-50">
-              <img
+              <Image
                 src="https://coresg-normal.trae.ai/api/ide/v1/text_to_image?prompt=Motorcycle%20BPKB%20vehicle%20registration%20document%20and%20cash%20money%20Indonesian%20Rupiah%20banknotes%20contract%20agreement%20handshake%20professional%20business%20finance%20photography&image_size=landscape_16_9"
                 alt="Gadai BPKB Motor Dana Tunai"
                 className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                width={1600}
+                height={1000}
+                unoptimized
               />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/15 to-transparent"></div>
               <div className="absolute left-6 top-6 inline-flex items-center gap-1.5 rounded-full bg-amber-400 px-3 py-1 shadow-sm">

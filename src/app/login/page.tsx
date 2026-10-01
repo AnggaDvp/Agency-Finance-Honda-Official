@@ -35,7 +35,7 @@ export default function LoginPage() {
       if (!response.ok) {
         throw new Error(json.error ?? "Login gagal, silakan coba lagi.");
       }
-      window.location.href = json.redirectTo ?? "/";
+      window.location.assign(json.redirectTo ?? "/");
     } catch (err) {
       const message = err instanceof Error ? err.message : "Login gagal";
       setError(message);

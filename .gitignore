@@ -44,3 +44,11 @@ next-env.d.ts
 # supabase cli local state
 supabase/.temp/
 supabase/.branches/
+
+# prisma 7 — generated client (output dari `prisma generate`, BUKAN source code)
+src/generated/prisma/
+
+# prisma 7 — artifacts debug
+prisma/*.db
+prisma/*.db-journal
+prisma/migrations/*/migration_lock.toml.bak

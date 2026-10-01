@@ -12,26 +12,40 @@ export function useChat(initialConversationId?: string) {
 
   const loadMessages = useCallback(async (id: string) => {
     const supabase = createClient();
+
     const { data } = await supabase
       .from("messages")
       .select("*")
       .eq("conversation_id", id)
       .order("created_at");
+
     setMessages((data ?? []) as ChatMessage[]);
   }, []);
 
   useEffect(() => {
     if (!conversationId) return;
+
+    // Data diambil dari external system (Supabase).
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     void loadMessages(conversationId);
 
     const supabase = createClient();
+
     const channel = supabase
       .channel(`messages:${conversationId}`)
       .on(
         "postgres_changes",
-        { event: "INSERT", schema: "public", table: "messages", filter: `conversation_id=eq.${conversationId}` },
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "messages",
+          filter: `conversation_id=eq.${conversationId}`,
+        },
         (payload) => {
-          setMessages((current) => [...current, payload.new as ChatMessage]);
+          setMessages((current) => [
+            ...current,
+            payload.new as ChatMessage,
+          ]);
         },
       )
       .subscribe();
@@ -44,23 +58,47 @@ export function useChat(initialConversationId?: string) {
   const send = async (message: string) => {
     setLoading(true);
     setError(null);
+
     try {
       const response = await fetch("/api/chat", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ conversationId, message }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          conversationId,
+          message,
+        }),
       });
-      const json = (await response.json()) as { conversationId?: string; error?: string };
-      if (!response.ok) throw new Error(json.error ?? "Gagal mengirim pesan");
-      if (json.conversationId) setConversationId(json.conversationId);
+
+      const json = (await response.json()) as {
+        conversationId?: string;
+        error?: string;
+      };
+
+      if (!response.ok) {
+        throw new Error(json.error ?? "Gagal mengirim pesan");
+      }
+
+      if (json.conversationId) {
+        setConversationId(json.conversationId);
+      }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Gagal mengirim pesan");
+      setError(
+        err instanceof Error ? err.message : "Gagal mengirim pesan",
+      );
     } finally {
       setLoading(false);
     }
   };
 
-  return { conversationId, messages, loading, error, send };
+  return {
+    conversationId,
+    messages,
+    loading,
+    error,
+    send,
+  };
 }
 
 export function useRealtimeConversations() {
@@ -70,7 +108,13 @@ export function useRealtimeConversations() {
     const supabase = createClient();
 
     const load = async () => {
-      const { data } = await supabase.from("conversations").select("*").order("updated_at", { ascending: false });
+      const { data } = await supabase
+        .from("conversations")
+        .select("*")
+        .order("updated_at", {
+          ascending: false,
+        });
+
       setConversations((data ?? []) as Conversation[]);
     };
 
@@ -78,9 +122,17 @@ export function useRealtimeConversations() {
 
     const channel = supabase
       .channel("conversations-admin")
-      .on("postgres_changes", { event: "*", schema: "public", table: "conversations" }, () => {
-        void load();
-      })
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "conversations",
+        },
+        () => {
+          void load();
+        },
+      )
       .subscribe();
 
     return () => {
