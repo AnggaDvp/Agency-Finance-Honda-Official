@@ -1,5 +1,5 @@
 import type { ApplicationStatus } from "@/types/application";
-import { APPLICATION_TIMELINE } from "@/types/application";
+import { APPLICATION_TIMELINE, APPLICATION_TIMELINE_BUSINESS } from "@/types/application";
 import { cn } from "@/lib/utils/cn";
 
 const LABELS: Record<ApplicationStatus, string> = {
@@ -10,6 +10,11 @@ const LABELS: Record<ApplicationStatus, string> = {
   processing: "Proses",
   completed: "Selesai",
   cancelled: "Dibatalkan",
+  PENGAJUAN_TERKIRIM: "Pengajuan Terkirim",
+  FOLLOW_UP: "Follow Up",
+  PROSES: "Proses",
+  SELESAI: "Selesai",
+  DIBATALKAN: "Dibatalkan",
 };
 
 export function ApplicationTimeline({ status }: { status: ApplicationStatus }) {

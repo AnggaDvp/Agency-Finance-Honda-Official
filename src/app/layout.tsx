@@ -1,21 +1,21 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans, Barlow_Semi_Condensed } from "next/font/google";
+import { Inter, Roboto_Condensed } from "next/font/google";
 import "./globals.css";
 import { PublicHeader } from "@/components/public/public-header";
 import { PublicFooter } from "@/components/public/public-footer";
 import { ChatWidget } from "@/components/chat/chat-widget";
 
-const jakarta = Plus_Jakarta_Sans({
+const jakarta = Inter({
   subsets: ["latin"],
   variable: "--font-jakarta",
   display: "swap",
 });
 
-const barlow = Barlow_Semi_Condensed({
+const barlow = Roboto_Condensed({
   subsets: ["latin"],
   variable: "--font-barlow",
   display: "swap",
-  weight: ["400", "500", "600", "700", "800"],
+  weight: ["400", "500", "700", "900"],
 });
 
 export const metadata: Metadata = {

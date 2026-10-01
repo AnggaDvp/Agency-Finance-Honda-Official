@@ -31,13 +31,15 @@ export async function findOrCreateCustomerByPhone(
 ) {
   const normalizedPhone = normalizePhone(input.phone);
 
-  const { data: existing, error: findError } = await client
+  const { data: existingRaw, error: findError } = await client
     .from("profiles")
     .select("*")
     .eq("phone", normalizedPhone)
     .eq("role", "customer")
     .maybeSingle();
   if (findError) throw findError;
+
+  const existing = existingRaw as Profile | null;
 
   if (existing) {
     const updatePayload: Record<string, unknown> = {};
