@@ -6,11 +6,75 @@ import { staticReplyFor } from "@/lib/chatbot/response";
 import { formatSimulationReply } from "@/lib/chatbot/rules";
 import { searchMotorcycles } from "@/lib/services/motor-service";
 import { getMotorcycleSimulation } from "@/lib/services/simulation-service";
+import { isLlmAvailable, naturalizeWithLlm } from "@/lib/services/llm-service";
 import { RATE_UNAVAILABLE_MESSAGE } from "@/lib/utils/constants";
 
 type Client = SupabaseClient<Database>;
 
-export async function processCustomerMessage(client: Client, message: string) {
+type CustomerMessageResult = {
+  intent: string;
+  reply: string;
+  escalate: boolean;
+  context: Record<string, unknown>;
+};
+
+async function loadRecentConversation(
+  client: Client,
+  conversationId?: string | null,
+): Promise<Array<{ role: "user" | "assistant"; content: string }>> {
+  if (!conversationId) return [];
+  try {
+    const { data } = await client
+      .from("messages")
+      .select("sender_type, message")
+      .eq("conversation_id", conversationId)
+      .order("created_at", { ascending: false })
+      .limit(12);
+    const rows = (data ?? []) as Array<{ sender_type: string; message: string }>;
+    return rows
+      .slice()
+      .reverse()
+      .map((row) => ({
+        role: row.sender_type === "bot" || row.sender_type === "admin"
+          ? "assistant" as const
+          : "user" as const,
+        content: row.message ?? "",
+      }))
+      .filter((r) => r.content.length > 0);
+  } catch {
+    return [];
+  }
+}
+
+async function naturalizeIfAvailable(input: {
+  userMessage: string;
+  result: CustomerMessageResult;
+  conversationHistory: Array<{ role: "user" | "assistant"; content: string }>;
+}): Promise<CustomerMessageResult> {
+  if (!isLlmAvailable() || input.result.escalate) return input.result;
+
+  const llmResult = await naturalizeWithLlm({
+    userMessage: input.userMessage,
+    detectedIntent: input.result.intent,
+    context: input.result.context,
+    systemDraftReply: input.result.reply,
+    conversationHistory: input.conversationHistory,
+  }).catch(() => null);
+
+  if (llmResult && llmResult.ok && llmResult.text.length > 0) {
+    return {
+      ...input.result,
+      reply: llmResult.text,
+    };
+  }
+  return input.result;
+}
+
+export async function processCustomerMessage(
+  client: Client,
+  message: string,
+  opts?: { conversation_id?: string | null },
+): Promise<CustomerMessageResult> {
   const intent = detectIntent(message);
   const context = extractContext(message);
 
@@ -23,7 +87,9 @@ export async function processCustomerMessage(client: Client, message: string) {
       const motors = await searchMotorcycles(client, context.motorcycleQuery);
       const motor = motors[0];
       if (!motor) {
-        return { intent, reply: "Motor tersebut belum ada di katalog kami kak.", escalate: false, context };
+        const base = { intent, reply: "Motor tersebut belum ada di katalog kami kak.", escalate: false, context };
+        const history = await loadRecentConversation(client, opts?.conversation_id);
+        return naturalizeIfAvailable({ userMessage: message, result: base, conversationHistory: history });
       }
       const simulation = await getMotorcycleSimulation(client, {
         motorcycleId: motor.id,
@@ -31,14 +97,18 @@ export async function processCustomerMessage(client: Client, message: string) {
         tenor: context.tenor,
       });
       if (!simulation.available) {
-        return { intent, reply: RATE_UNAVAILABLE_MESSAGE, escalate: false, context };
+        const base = { intent, reply: RATE_UNAVAILABLE_MESSAGE, escalate: false, context };
+        const history = await loadRecentConversation(client, opts?.conversation_id);
+        return naturalizeIfAvailable({ userMessage: message, result: base, conversationHistory: history });
       }
-      return {
+      const base = {
         intent,
         reply: formatSimulationReply(context, Number(simulation.rate.installment)),
         escalate: false,
         context,
       };
+      const history = await loadRecentConversation(client, opts?.conversation_id);
+      return naturalizeIfAvailable({ userMessage: message, result: base, conversationHistory: history });
     }
   }
 
@@ -53,19 +123,21 @@ export async function processCustomerMessage(client: Client, message: string) {
   const rows = kbRecord?.chatbot_responses ?? [];
   const knowledge = rows.filter((row) => row.active).sort((a, b) => a.priority - b.priority)[0];
 
-  return {
+  const baseResult: CustomerMessageResult = {
     intent,
-    reply: knowledge?.response_text ?? staticReplyFor(intent, context),
+    reply: knowledge?.response_text ?? staticReplyFor(intent as never, context),
     escalate: false,
     context,
   };
+
+  const history = await loadRecentConversation(client, opts?.conversation_id);
+  return naturalizeIfAvailable({ userMessage: message, result: baseResult, conversationHistory: history });
 }
 
 export async function generateReply(
   message: string,
   opts?: { conversation_id?: string; supabaseClient?: Client | null },
 ): Promise<string> {
-  void opts?.conversation_id;
   const client = opts?.supabaseClient;
 
   const intent = detectIntent(message);
@@ -76,13 +148,13 @@ export async function generateReply(
 
   if (client) {
     try {
-      const result = await processCustomerMessage(client, message);
+      const result = await processCustomerMessage(client, message, { conversation_id: opts?.conversation_id ?? null });
       return result.reply;
     } catch {
-      return staticReplyFor(intent, context);
+      return staticReplyFor(intent as never, context);
     }
   }
 
-  return staticReplyFor(intent, context);
+  return staticReplyFor(intent as never, context);
 }
 
